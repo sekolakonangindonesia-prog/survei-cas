@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Survei Lokasi CAS – Probolinggo</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -21,22 +20,27 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--c-bg);color:var(--c-text);min-height:100vh;font-size:15px}
 
+/* HEADER */
 .header{background:var(--c-accent);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .header-logo{width:36px;height:36px;background:#fff2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
 .header-title{font-size:16px;font-weight:600;line-height:1.2}
 .header-sub{font-size:11px;opacity:.8}
 .header-sync{margin-left:auto;background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
 
+/* TABS */
 .tabs{display:flex;background:var(--c-surface);border-bottom:1px solid var(--c-border);overflow-x:auto}
 .tab{flex:1;min-width:80px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--c-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
 .tab.active{color:var(--c-primary);border-bottom-color:var(--c-primary)}
 .tab i{display:block;font-size:18px;margin-bottom:2px}
 
+/* CONTENT */
 .pane{display:none;padding:16px;max-width:700px;margin:0 auto}
 .pane.active{display:block}
 
+/* SECTIONS */
 .section-label{font-size:11px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;border-left:3px solid var(--c-accent);padding-left:8px}
 
+/* FIELDS */
 .field{margin-bottom:12px}
 label{display:block;font-size:13px;font-weight:500;color:var(--c-muted);margin-bottom:4px}
 input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--radius-sm);font-size:14px;color:var(--c-text);background:#fff;outline:none;transition:border-color .2s}
@@ -45,22 +49,28 @@ textarea{resize:vertical;min-height:72px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
+/* GPS ROW */
+.gps-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}
+.gps-row .field{flex:1;margin-bottom:0}
+.gps-btn{padding:10px 14px;background:var(--c-primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;font-weight:500}
+
+/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:opacity .2s}
 .btn:active{opacity:.8}
 .btn-primary{background:var(--c-primary);color:#fff;width:100%}
 .btn-outline{background:#fff;color:var(--c-text);border:1px solid var(--c-border);flex:1}
 .btn-danger{background:var(--c-danger-bg);color:var(--c-danger);font-size:12px;padding:6px 10px}
-.btn-wa{background:#25D366;color:#fff;font-size:12px;padding:6px 10px}
-.btn-pdf{background:#FF6B6B;color:#fff;font-size:12px;padding:6px 10px}
 .btn-export{background:var(--c-surface);border:1px solid var(--c-border);color:var(--c-text);width:100%;margin-bottom:8px;padding:12px 16px;text-align:left;justify-content:flex-start}
 .btn-export:hover{background:var(--c-bg)}
 
+/* FOTO */
 .foto-upload{border:2px dashed var(--c-border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:#fafafa;margin-bottom:8px}
 .foto-upload:hover{border-color:var(--c-primary)}
 .foto-upload input{display:none}
 .foto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .foto-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--c-border)}
 
+/* CARDS */
 .card{background:var(--c-surface);border-radius:var(--radius);border:1px solid var(--c-border);padding:14px 16px;margin-bottom:10px}
 .card-name{font-size:15px;font-weight:600;margin-bottom:2px}
 .card-addr{font-size:13px;color:var(--c-muted);margin-bottom:6px;display:flex;align-items:flex-start;gap:4px}
@@ -71,51 +81,43 @@ textarea{resize:vertical;min-height:72px}
 .tag-red{background:var(--c-danger-bg);color:var(--c-danger)}
 .tag-blue{background:var(--c-info-bg);color:var(--c-info)}
 .tag-gray{background:#F3F4F6;color:#374151}
-.tag-purple{background:#EDE9FE;color:#5B21B6}
 .card-fotos{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}
 .card-fotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-sm);cursor:pointer}
 .card-catatan{font-size:13px;color:var(--c-muted);border-left:2px solid var(--c-border);padding-left:8px;margin:6px 0}
-.card-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.card-actions{display:flex;gap:8px;margin-top:8px;align-items:center}
 .card-footer{font-size:11px;color:var(--c-muted);margin-left:auto}
 
+/* STATS */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .stat{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:12px;text-align:center}
 .stat-num{font-size:26px;font-weight:700;color:var(--c-primary)}
 .stat-lbl{font-size:11px;color:var(--c-muted);margin-top:2px}
 
+/* SEARCH */
 .search-bar{display:flex;gap:8px;margin-bottom:12px}
 .search-bar input{flex:1}
 .search-bar select{width:150px}
 
+/* EMPTY */
 .empty{text-align:center;padding:48px 20px;color:var(--c-muted)}
 .empty i{font-size:48px;display:block;margin-bottom:12px;color:var(--c-border)}
 .empty p{font-size:14px}
 
+/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 
+/* SYNC STATUS */
 .sync-bar{background:var(--c-info-bg);color:var(--c-info);font-size:12px;padding:8px 16px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
 .sync-bar.ok{background:var(--c-success-bg);color:var(--c-success)}
 .sync-bar.err{background:var(--c-danger-bg);color:var(--c-danger)}
 
+/* MODAL FOTO */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal-overlay img{max-width:95vw;max-height:90vh;border-radius:var(--radius);object-fit:contain}
 .modal-close{position:fixed;top:16px;right:16px;background:#fff2;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-/* EKSPOR MODAL */
-.exp-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:8888;align-items:center;justify-content:center;padding:16px}
-.exp-modal.open{display:flex}
-.exp-box{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
-.exp-box h3{font-size:15px;font-weight:700;margin-bottom:12px}
-.exp-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer}
-.exp-item:hover{background:var(--c-bg)}
-.exp-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--c-primary)}
-.exp-item-info{flex:1}
-.exp-item-name{font-size:13px;font-weight:600}
-.exp-item-sub{font-size:11px;color:var(--c-muted)}
-.exp-modal-actions{display:flex;gap:8px;margin-top:14px}
-.exp-modal-actions .btn{flex:1;justify-content:center}
-
+/* SETUP PANEL */
 .setup-card{background:var(--c-surface);border-radius:var(--radius);border:1px solid var(--c-border);padding:20px;margin-bottom:16px}
 .setup-card h3{font-size:15px;font-weight:600;margin-bottom:8px}
 .setup-card p{font-size:13px;color:var(--c-muted);margin-bottom:12px;line-height:1.6}
@@ -164,7 +166,7 @@ textarea{resize:vertical;min-height:72px}
   </div>
 
   <div class="section-label">B. Alamat</div>
-  <div class="field"><label>Jalan / RT / RW</label><input type="text" id="jalan" placeholder="Jalan Raya Panglima Sudirman RT 001 RW 001"></div>
+  <div class="field"><label>Jalan / RT / RW</label><input type="text" id="jalan" placeholder="Jalan Raya Pang Sudirman RT 001 RW 001"></div>
   <div class="row2">
     <div class="field"><label>Kelurahan / Desa</label><input type="text" id="kel" placeholder="Semampir"></div>
     <div class="field"><label>Kecamatan</label><input type="text" id="kec" placeholder="Kraksaan"></div>
@@ -173,9 +175,16 @@ textarea{resize:vertical;min-height:72px}
     <div class="field"><label>Kabupaten / Kota</label><input type="text" id="kab" placeholder="Probolinggo"></div>
     <div class="field"><label>Provinsi</label><input type="text" id="prov" placeholder="Jawa Timur"></div>
   </div>
+
+  <div class="section-label">C. Koordinat & Peta</div>
+  <div class="gps-row">
+    <div class="field"><label>Latitude</label><input type="text" id="lat" placeholder="-7.761541..."></div>
+    <div class="field"><label>Longitude</label><input type="text" id="lng" placeholder="113.413260..."></div>
+    <button class="gps-btn" onclick="getGPS()"><i class="ti ti-gps"></i>GPS</button>
+  </div>
   <div class="field"><label>Link Google Maps</label><input type="text" id="gmaps" placeholder="https://goo.gl/maps/..."></div>
 
-  <div class="section-label">C. Kondisi Lokasi</div>
+  <div class="section-label">D. Kondisi Lokasi</div>
   <div class="row2">
     <div class="field"><label>Status Lahan</label>
       <select id="status">
@@ -184,11 +193,42 @@ textarea{resize:vertical;min-height:72px}
         <option>Negeri / Pemerintah</option><option>Lainnya</option>
       </select>
     </div>
+    <div class="field"><label>Listrik</label>
+      <select id="listrik">
+        <option value="">-- Pilih --</option>
+        <option>Ada – akses mudah</option>
+        <option>Ada – perlu izin</option>
+        <option>Tidak ada</option>
+      </select>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>Daya Listrik (VA)</label><input type="text" id="daya" placeholder="900 / 1300 / 2200 ..."></div>
+    <div class="field"><label>Sinyal / WiFi</label>
+      <select id="wifi">
+        <option value="">-- Pilih --</option>
+        <option>Kuat</option><option>Sedang</option>
+        <option>Lemah</option><option>Tidak ada</option>
+      </select>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>Volume Kendaraan / Hari</label>
+      <select id="volume">
+        <option value="">-- Estimasi --</option>
+        <option>Rendah (&lt;20)</option>
+        <option>Sedang (20–50)</option>
+        <option>Tinggi (50–100)</option>
+        <option>Sangat Tinggi (&gt;100)</option>
+      </select>
+    </div>
     <div class="field"><label>Rekomendasi</label>
       <select id="rekomendasi">
         <option value="">-- Pilih --</option>
-        <option>BBS</option>
-        <option>SPKL</option>
+        <option>Sangat Direkomendasikan</option>
+        <option>Direkomendasikan</option>
+        <option>Perlu Kajian Lanjut</option>
+        <option>Tidak Direkomendasikan</option>
       </select>
     </div>
   </div>
@@ -196,7 +236,7 @@ textarea{resize:vertical;min-height:72px}
     <textarea id="catatan" placeholder="Kondisi jalan, kendala akses, potensi khusus, dll..."></textarea>
   </div>
 
-  <div class="section-label">D. Foto Lokasi</div>
+  <div class="section-label">E. Foto Lokasi</div>
   <div class="foto-upload" onclick="document.getElementById('fotos').click()">
     <i class="ti ti-camera" style="font-size:28px;color:var(--c-muted);display:block;margin-bottom:6px"></i>
     <div style="font-size:13px;color:var(--c-muted)">Tap untuk upload foto<br><small>Tampak depan · Kios · Titik CAS · Screenshot GPS</small></div>
@@ -204,13 +244,8 @@ textarea{resize:vertical;min-height:72px}
   </div>
   <div class="foto-grid" id="foto-preview"></div>
 
-  <div class="section-label">E. Data Tim</div>
-  <div class="field"><label>Nama Marketing *</label><input type="text" id="petugas" placeholder="Nama marketing lapangan"></div>
-  <div class="field"><label>Nama Koordinator Area</label><input type="text" id="koordinator" placeholder="Nama koordinator area"></div>
-  <div class="row2">
-    <div class="field"><label>Nomer CP</label><input type="tel" id="nocp" placeholder="08xxxxxxxxxx"></div>
-    <div class="field"><label>Email</label><input type="email" id="email" placeholder="contoh@email.com"></div>
-  </div>
+  <div class="section-label">F. Petugas</div>
+  <div class="field"><label>Nama Petugas Survei *</label><input type="text" id="petugas" placeholder="Nama anggota tim lapangan"></div>
 
   <div style="display:flex;gap:10px;margin-top:18px;margin-bottom:24px">
     <button class="btn btn-primary" onclick="simpan()"><i class="ti ti-check"></i> Simpan & Kirim Data</button>
@@ -227,8 +262,10 @@ textarea{resize:vertical;min-height:72px}
     <input type="text" id="search-q" placeholder="Cari nama, desa, kecamatan..." oninput="renderData()">
     <select id="filter-rek" onchange="renderData()">
       <option value="">Semua</option>
-      <option>BBS</option>
-      <option>SPKL</option>
+      <option>Sangat Direkomendasikan</option>
+      <option>Direkomendasikan</option>
+      <option>Perlu Kajian Lanjut</option>
+      <option>Tidak Direkomendasikan</option>
     </select>
   </div>
   <div id="data-list"></div>
@@ -239,53 +276,19 @@ textarea{resize:vertical;min-height:72px}
   <div style="font-size:15px;font-weight:600;margin-bottom:4px">Ekspor Data Survei</div>
   <div id="exp-info" style="font-size:13px;color:var(--c-muted);margin-bottom:16px"></div>
 
-  <!-- SEMUA DATA -->
-  <div style="font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;border-left:3px solid var(--c-accent);padding-left:8px">Ekspor Semua Data</div>
-
-  <button class="btn btn-export" onclick="exportCSVSemua()">
+  <button class="btn btn-export" onclick="exportCSV()">
     <i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--c-primary)"></i>
-    <div>
-      <div style="font-weight:600">Download CSV / Excel – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Buka di Microsoft Excel / Google Sheets</div>
-    </div>
+    <div><div style="font-weight:600">Download CSV</div><div style="font-size:12px;color:var(--c-muted)">Buka di Microsoft Excel / Google Sheets</div></div>
   </button>
-
-  <button class="btn btn-export" onclick="exportJSONSemua()">
+  <button class="btn btn-export" onclick="exportJSON()">
     <i class="ti ti-code" style="font-size:20px;color:#7B0D1E"></i>
-    <div>
-      <div style="font-weight:600">Download JSON – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Backup / untuk developer</div>
-    </div>
+    <div><div style="font-weight:600">Download JSON</div><div style="font-size:12px;color:var(--c-muted)">Backup / untuk developer</div></div>
   </button>
-
   <button class="btn btn-export" onclick="copyText()">
     <i class="ti ti-clipboard-text" style="font-size:20px;color:#92400E"></i>
-    <div>
-      <div style="font-weight:600">Salin ke Clipboard – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Format teks ringkas – kirim via WhatsApp</div>
-    </div>
+    <div><div style="font-weight:600">Salin ke Clipboard</div><div style="font-size:12px;color:var(--c-muted)">Format teks ringkas – kirim via WhatsApp</div></div>
   </button>
 
-  <!-- SATU PERSATU -->
-  <div style="font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px;border-left:3px solid var(--c-accent);padding-left:8px">Ekspor Satu Persatu / Pilih Data</div>
-
-  <button class="btn btn-export" onclick="bukaModalPilih('csv')">
-    <i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--c-primary)"></i>
-    <div>
-      <div style="font-weight:600">Download CSV – Pilih Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Centang data yang ingin diunduh sebagai CSV</div>
-    </div>
-  </button>
-
-  <button class="btn btn-export" onclick="bukaModalPilih('pdf')">
-    <i class="ti ti-file-type-pdf" style="font-size:20px;color:#FF6B6B"></i>
-    <div>
-      <div style="font-weight:600">Download PDF – Pilih Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Data lengkap + foto, pilih satu atau lebih</div>
-    </div>
-  </button>
-
-  <!-- Import -->
   <div style="margin-top:20px;border-top:1px solid var(--c-border);padding-top:16px">
     <div style="font-size:13px;font-weight:600;margin-bottom:8px">Import dari backup JSON</div>
     <input type="file" id="import-file" accept=".json" onchange="importJSON(this)" style="font-size:13px">
@@ -296,61 +299,70 @@ textarea{resize:vertical;min-height:72px}
 <div id="pane-setup" class="pane">
   <div class="setup-card">
     <h3><i class="ti ti-cloud" style="color:var(--c-primary)"></i> Sinkronisasi Data Terpusat</h3>
-    <p>Agar data dari semua petugas lapangan bisa dikumpulkan di satu tempat, daftarkan dulu <b>JSONBin.io</b> (gratis, tidak perlu server).</p>
-    <div class="step"><div class="step-num">1</div><div class="step-text">Buka <b>jsonbin.io</b> → Register gratis → Login</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-text">Klik <b>API Keys</b> → Salin <b>Secret Key</b></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-text">Klik <b>Bins</b> → <b>New Bin</b> → isi <span class="code-block">[]</span> → Create → Salin <b>BIN ID</b></div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-text">Paste ke kolom di bawah → Simpan → Bagikan file HTML ini ke semua marketing</div></div>
-    <div class="field"><label>API Secret Key (X-Master-Key)</label><input type="password" id="cfg-apikey" placeholder="$2a$10$..."></div>
-    <div class="field"><label>Bin ID</label><input type="text" id="cfg-binid" placeholder="64abc123..."></div>
-    <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="saveConfig()"><i class="ti ti-device-floppy"></i> Simpan Konfigurasi</button>
-    <button class="btn btn-outline" style="margin-top:8px;margin-left:8px" onclick="testSync()"><i class="ti ti-plug"></i> Test Koneksi</button>
+    <p>Agar data dari semua petugas lapangan bisa dikumpulkan di satu tempat, daftarkan dulu <b>JSONBin.io</b> (gratis, tidak perlu server). Setelah dapat API Key dan Bin ID, masukkan di bawah.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Buka <b>jsonbin.io</b> → Register gratis → Login</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Klik <b>API Keys</b> di menu kiri → Salin <b>Secret Key</b></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Klik <b>Bins</b> → <b>New Bin</b> → isi dengan <span class="code-block">[]</span> → Create → Salin <b>BIN ID</b></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">Paste ke kolom di bawah → Simpan → Bagikan file HTML ini ke semua petugas</div>
+    </div>
+
+    <div class="field"><label>API Secret Key (X-Master-Key)</label>
+      <input type="password" id="cfg-apikey" placeholder="$2a$10$...">
+    </div>
+    <div class="field"><label>Bin ID</label>
+      <input type="text" id="cfg-binid" placeholder="64abc123...">
+    </div>
+    <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="saveConfig()">
+      <i class="ti ti-device-floppy"></i> Simpan Konfigurasi
+    </button>
+    <button class="btn btn-outline" style="margin-top:8px;margin-left:8px" onclick="testSync()">
+      <i class="ti ti-plug"></i> Test Koneksi
+    </button>
   </div>
+
   <div class="setup-card">
     <h3><i class="ti ti-info-circle" style="color:var(--c-primary)"></i> Cara Pakai</h3>
     <div class="step"><div class="step-num">1</div><div class="step-text">Simpan file HTML ini ke HP atau share link hosting</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-text">Marketing isi form, klik <b>Simpan & Kirim Data</b></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-text">Koordinator buka tab <b>Data</b>, klik <b>Sinkron</b> untuk tarik data terbaru</div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-text">Download CSV atau PDF dari tab <b>Ekspor</b> untuk laporan</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">Petugas isi form, klik <b>Simpan & Kirim Data</b></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">Supervisor buka tab <b>Data</b>, klik <b>Sinkron</b> (pojok kanan atas) untuk tarik data terbaru</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-text">Download CSV dari tab <b>Ekspor</b> untuk laporan</div></div>
   </div>
 </div>
 
-<!-- Modal foto besar -->
+<!-- Modal foto -->
 <div class="modal-overlay" id="modal" onclick="this.classList.remove('open')">
   <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
   <img id="modal-img" src="" alt="Foto lokasi">
-</div>
-
-<!-- Modal pilih data ekspor -->
-<div class="exp-modal" id="exp-modal">
-  <div class="exp-box">
-    <h3 id="exp-modal-title">Pilih Data untuk Diunduh</h3>
-    <div style="font-size:12px;color:var(--c-muted);margin-bottom:12px">Centang data yang ingin diunduh</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="piliSemua(true)">Pilih Semua</button>
-      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="piliSemua(false)">Batal Semua</button>
-    </div>
-    <div id="exp-modal-list"></div>
-    <div class="exp-modal-actions">
-      <button class="btn btn-outline" onclick="tutupModalPilih()"><i class="ti ti-x"></i> Batal</button>
-      <button class="btn btn-primary" onclick="eksporDipilih()" style="flex:1"><i class="ti ti-download"></i> Unduh Dipilih</button>
-    </div>
-  </div>
 </div>
 
 <div class="toast" id="toast" style="opacity:0"></div>
 
 <script>
 const LOCAL_KEY = 'cas-survei-v2';
+const DELETED_KEY = 'cas-deleted-v2';
 let allData = [];
+let deletedIds = [];
 let fotoUrls = [];
 let cfg = {apikey:'', binid:''};
-let ekspor_mode = 'csv'; // 'csv' atau 'pdf'
 
 // ── Init ──
 function init(){
   const raw = localStorage.getItem(LOCAL_KEY);
   if(raw) try{allData = JSON.parse(raw);}catch(e){}
+  const delRaw = localStorage.getItem(DELETED_KEY);
+  if(delRaw) try{deletedIds = JSON.parse(delRaw);}catch(e){}
   const cfgRaw = localStorage.getItem('cas-cfg');
   if(cfgRaw) try{cfg = JSON.parse(cfgRaw);}catch(e){}
   document.getElementById('cfg-apikey').value = cfg.apikey||'';
@@ -372,20 +384,58 @@ function switchTab(id){
   if(id==='export') renderExpInfo();
 }
 
+// ── GPS ──
+function getGPS(){
+  if(!navigator.geolocation){toast('GPS tidak tersedia','err');return;}
+  toast('Mengambil koordinat...');
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById('lat').value = p.coords.latitude.toFixed(10);
+    document.getElementById('lng').value = p.coords.longitude.toFixed(10);
+    toast('GPS berhasil diambil!');
+  },()=>toast('Izinkan akses lokasi di browser','err'));
+}
+
 // ── Foto ──
-function previewFoto(input){
+// Kompres foto sebelum disimpan agar tidak melebihi kuota localStorage
+function kompresFoto(file, maxDim, kualitas){
+  return new Promise((resolve)=>{
+    const r = new FileReader();
+    r.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if(w > h){ if(w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; } }
+        else { if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', kualitas));
+      };
+      img.onerror = () => resolve(null);
+      img.src = e.target.result;
+    };
+    r.onerror = () => resolve(null);
+    r.readAsDataURL(file);
+  });
+}
+
+async function previewFoto(input){
   fotoUrls=[];
   document.getElementById('foto-preview').innerHTML='';
-  Array.from(input.files).slice(0,6).forEach(f=>{
-    const r=new FileReader();
-    r.onload=e=>{
-      fotoUrls.push(e.target.result);
+  const files = Array.from(input.files).slice(0,6);
+  if(!files.length) return;
+  toast('Memproses '+files.length+' foto...');
+  for(const f of files){
+    const hasil = await kompresFoto(f, 1024, 0.6);
+    if(hasil){
+      fotoUrls.push(hasil);
       const img=document.createElement('img');
-      img.src=e.target.result;
+      img.src=hasil;
       document.getElementById('foto-preview').appendChild(img);
-    };
-    r.readAsDataURL(f);
-  });
+    }
+  }
+  toast(fotoUrls.length+' foto siap disimpan');
 }
 
 // ── Simpan ──
@@ -393,24 +443,25 @@ async function simpan(){
   const nama=v('nama'),tgl=v('tgl'),petugas=v('petugas');
   if(!nama){toast('Nama pemilik wajib diisi','err');return;}
   if(!tgl){toast('Tanggal wajib diisi','err');return;}
-  if(!petugas){toast('Nama marketing wajib diisi','err');return;}
+  if(!petugas){toast('Nama petugas wajib diisi','err');return;}
 
   const entry={
     id:Date.now(), nama, tgl,
     jam:v('jam'), toko:v('toko'),
     jalan:v('jalan'), kel:v('kel'), kec:v('kec'), kab:v('kab'), prov:v('prov'),
-    gmaps:v('gmaps'),
-    status:v('status'), rekomendasi:v('rekomendasi'),
-    catatan:v('catatan'),
-    petugas,
-    koordinator:v('koordinator'),
-    nocp:v('nocp'),
-    email:v('email'),
-    fotos: fotoUrls.slice(0,6)
+    lat:v('lat'), lng:v('lng'), gmaps:v('gmaps'),
+    status:v('status'), listrik:v('listrik'), daya:v('daya'),
+    wifi:v('wifi'), volume:v('volume'), rekomendasi:v('rekomendasi'),
+    catatan:v('catatan'), petugas,
+    fotos: fotoUrls.slice(0,4)
   };
 
   allData.unshift(entry);
-  saveLocal();
+  const tersimpan = saveLocal();
+  if(!tersimpan){
+    allData.shift(); // batalkan, kuota penuh
+    return;
+  }
   toast('Data tersimpan! Mengirim...');
   resetForm();
   if(cfg.apikey && cfg.binid){
@@ -421,17 +472,22 @@ async function simpan(){
   renderStats(); renderData();
 }
 
-function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function v(id){return document.getElementById(id).value.trim();}
 
 function saveLocal(){
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(allData));
+  try{
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(allData));
+    return true;
+  }catch(e){
+    toast('Penyimpanan penuh! Foto tidak tersimpan. Hapus data lama atau kurangi foto.','err');
+    console.error('localStorage gagal:', e);
+    return false;
+  }
 }
 
 function resetForm(){
-  ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas','koordinator','nocp','email'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value='';
-  });
-  ['status','rekomendasi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['nama','toko','jalan','kel','kec','kab','prov','lat','lng','gmaps','daya','catatan','petugas'].forEach(id=>document.getElementById(id).value='');
+  ['status','listrik','wifi','volume','rekomendasi'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fotos').value='';
   document.getElementById('foto-preview').innerHTML='';
   fotoUrls=[];
@@ -444,130 +500,27 @@ function resetForm(){
 function hapus(id){
   if(!confirm('Hapus data ini?')) return;
   allData=allData.filter(d=>d.id!==id);
+  deletedIds.push(id);
+  localStorage.setItem(DELETED_KEY, JSON.stringify(deletedIds));
   saveLocal(); renderData(); renderStats(); renderExpInfo();
   if(cfg.apikey&&cfg.binid) pushToCloud(allData);
   toast('Data dihapus');
 }
 
-// ── Kirim ke WhatsApp ──
-function kirimWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d){toast('Data tidak ditemukan','err');return;}
-
-  // Jika ada foto, tampilkan panel info dulu (tanpa confirm/alert yang bisa diblok browser)
-  if(d.fotos && d.fotos.length > 0){
-    tampilPanelWA(d);
-  } else {
-    bukaWALangsung(d);
-  }
-}
-
-function bukaWALangsung(d){
-  const teks = formatTeksWA(d);
-  const encoded = encodeURIComponent(teks);
-  // Gunakan location.href agar tidak diblok popup blocker mobile
-  window.location.href = 'https://wa.me/?text=' + encoded;
-}
-
-function formatTeksWA(d){
-  return [
-    '🔌 *SURVEI LOKASI CAS*',
-    '━━━━━━━━━━━━━━━━━━━',
-    `👤 *Pemilik:* ${d.nama}${d.toko?' / '+d.toko:''}`,
-    `📍 *Alamat:* ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'}`,
-    d.gmaps?`🗺️ *Maps:* ${d.gmaps}`:'',
-    `🏷️ *Status Lahan:* ${d.status||'-'}`,
-    `✅ *Rekomendasi:* ${d.rekomendasi||'-'}`,
-    d.catatan?`📝 *Catatan:* ${d.catatan}`:'',
-    '━━━━━━━━━━━━━━━━━━━',
-    `📌 *Marketing:* ${d.petugas||'-'}`,
-    d.koordinator?`📌 *Koordinator:* ${d.koordinator}`:'',
-    d.nocp?`📞 *CP:* ${d.nocp}`:'',
-    d.email?`📧 *Email:* ${d.email}`:'',
-    `📅 *Tanggal:* ${d.tgl}${d.jam?' '+d.jam:''}`,
-    d.fotos&&d.fotos.length?`━━━━━━━━━━━━━━━━━━━\n📷 *${d.fotos.length} foto* – dikirim terpisah via attachment WA`:''
-  ].filter(Boolean).join('\n');
-}
-
-// Panel info foto tanpa confirm() – dibuat sebagai overlay HTML
-function tampilPanelWA(d){
-  // Hapus panel lama jika ada
-  const old = document.getElementById('wa-panel');
-  if(old) old.remove();
-
-  const panel = document.createElement('div');
-  panel.id = 'wa-panel';
-  panel.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding:16px';
-
-  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
-
-  panel.innerHTML = `
-    <div style="background:#fff;border-radius:16px 16px 8px 8px;width:100%;max-width:480px;padding:20px;font-family:sans-serif">
-      <div style="font-size:15px;font-weight:700;margin-bottom:6px">📤 Kirim ke WhatsApp</div>
-      <div style="font-size:13px;color:#6B7280;margin-bottom:14px;line-height:1.6">
-        Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>
-        <b>Langkah:</b><br>
-        1️⃣ Klik <b>"Simpan Foto"</b> – foto otomatis terunduh ke galeri HP<br>
-        2️⃣ Klik <b>"Buka WhatsApp"</b> – teks data terbuka di WA<br>
-        3️⃣ Di WA, klik 📎 lalu pilih foto dari galeri untuk dikirim
-      </div>
-      <div id="wa-foto-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
-        ${d.fotos.map((f,i)=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid #E5E7EB">`).join('')}
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="simpanFotoWA(${d.id})" style="flex:1;background:#0F6E56;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
-          📥 Simpan Foto (${d.fotos.length})
-        </button>
-        <button onclick="lanjutBukaWA(${d.id})" style="flex:1;background:#25D366;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
-          💬 Buka WhatsApp
-        </button>
-      </div>
-      <button onclick="document.getElementById('wa-panel').remove()" style="width:100%;background:none;border:1px solid #E5E7EB;padding:8px;border-radius:8px;font-size:13px;color:#6B7280;cursor:pointer;margin-top:8px">
-        Batal
-      </button>
-    </div>
-  `;
-  document.body.appendChild(panel);
-}
-
-function simpanFotoWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d||!d.fotos) return;
-  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
-  d.fotos.forEach((f,i)=>{
-    setTimeout(()=>{
-      const a = document.createElement('a');
-      a.href = f;
-      a.download = `cas-${nama_bersih}-foto${i+1}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }, i * 300); // delay antar foto agar browser tidak blokir
-  });
-  toast(`${d.fotos.length} foto sedang diunduh...`);
-}
-
-function lanjutBukaWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d) return;
-  document.getElementById('wa-panel')?.remove();
-  bukaWALangsung(d);
-}
-
-// ── Tag rekomendasi ──
+// ── Render ──
 function rekTag(r){
   if(!r) return '';
-  if(r==='BBS') return `<span class="tag tag-blue">BBS</span>`;
-  if(r==='SPKL') return `<span class="tag tag-purple">SPKL</span>`;
-  return `<span class="tag tag-gray">${r}</span>`;
+  if(r.includes('Sangat')) return `<span class="tag tag-green">${r}</span>`;
+  if(r.includes('Tidak')) return `<span class="tag tag-red">${r}</span>`;
+  if(r.includes('Kajian')) return `<span class="tag tag-yellow">${r}</span>`;
+  return `<span class="tag tag-blue">${r}</span>`;
 }
 
-// ── Render Data ──
 function renderData(){
   const q=(document.getElementById('search-q')||{value:''}).value.toLowerCase();
   const fr=(document.getElementById('filter-rek')||{value:''}).value;
   const list=allData.filter(d=>{
-    const txt=[d.nama,d.toko,d.kel,d.kec,d.kab,d.petugas,d.koordinator].join(' ').toLowerCase();
+    const txt=[d.nama,d.toko,d.kel,d.kec,d.kab,d.petugas].join(' ').toLowerCase();
     return (!q||txt.includes(q))&&(!fr||d.rekomendasi===fr);
   });
   const area=document.getElementById('data-list');
@@ -582,18 +535,16 @@ function renderData(){
         ${rekTag(d.rekomendasi)}
       </div>
       <div class="card-addr"><i class="ti ti-map-pin" style="margin-top:1px;flex-shrink:0"></i>${esc([d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', '))}</div>
-      ${d.status?`<div class="card-meta"><span class="tag tag-gray"><i class="ti ti-home"></i> ${esc(d.status)}</span></div>`:''}
+      <div class="card-meta">
+        ${d.listrik?`<span class="tag tag-gray"><i class="ti ti-plug"></i> ${esc(d.listrik)}${d.daya?' '+d.daya+'VA':''}</span>`:''}
+        ${d.wifi?`<span class="tag tag-gray"><i class="ti ti-wifi"></i> ${esc(d.wifi)}</span>`:''}
+        ${d.volume?`<span class="tag tag-gray"><i class="ti ti-car"></i> ${esc(d.volume)}</span>`:''}
+      </div>
+      ${d.lat?`<div style="font-size:12px;color:var(--c-muted);margin-bottom:4px"><i class="ti ti-gps"></i> ${parseFloat(d.lat).toFixed(6)}, ${parseFloat(d.lng).toFixed(6)}</div>`:''}
       ${d.gmaps?`<a href="${esc(d.gmaps)}" target="_blank" style="font-size:12px;color:var(--c-primary);display:inline-flex;align-items:center;gap:4px;margin-bottom:6px"><i class="ti ti-external-link"></i>Buka Google Maps</a>`:''}
       ${d.catatan?`<div class="card-catatan">${esc(d.catatan)}</div>`:''}
       ${d.fotos&&d.fotos.length?`<div class="card-fotos">${d.fotos.map(f=>`<img src="${f}" onclick="openModal(this.src)" loading="lazy">`).join('')}</div>`:''}
-      <div style="font-size:12px;color:var(--c-muted);margin-top:6px">
-        ${d.koordinator?`<span>Koordinator: <b>${esc(d.koordinator)}</b></span> · `:''}
-        ${d.nocp?`<span>CP: ${esc(d.nocp)}</span> · `:''}
-        ${d.email?`<span>${esc(d.email)}</span>`:''}
-      </div>
       <div class="card-actions">
-        <button class="btn btn-wa" onclick="kirimWA(${d.id})"><i class="ti ti-brand-whatsapp"></i> WA</button>
-        <button class="btn btn-pdf" onclick="downloadPDFSatu(${d.id})"><i class="ti ti-file-type-pdf"></i> PDF</button>
         <button class="btn btn-danger" onclick="hapus(${d.id})"><i class="ti ti-trash"></i> Hapus</button>
         <div class="card-footer"><i class="ti ti-calendar"></i> ${d.tgl} ${d.jam||''} · ${esc(d.petugas||'')}</div>
       </div>
@@ -605,277 +556,18 @@ function renderStats(){
   const el=document.getElementById('stats');
   if(!el) return;
   const total=allData.length;
-  const bbs=allData.filter(d=>d.rekomendasi==='BBS').length;
-  const spkl=allData.filter(d=>d.rekomendasi==='SPKL').length;
+  const rek=allData.filter(d=>d.rekomendasi&&(d.rekomendasi.includes('Sangat')||d.rekomendasi==='Direkomendasikan')).length;
+  const hari=[...new Set(allData.map(d=>d.tgl))].length;
   el.innerHTML=`
     <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Total Lokasi</div></div>
-    <div class="stat"><div class="stat-num">${bbs}</div><div class="stat-lbl">BBS</div></div>
-    <div class="stat"><div class="stat-num">${spkl}</div><div class="stat-lbl">SPKL</div></div>
+    <div class="stat"><div class="stat-num">${rek}</div><div class="stat-lbl">Direkomendasikan</div></div>
+    <div class="stat"><div class="stat-num">${hari}</div><div class="stat-lbl">Hari Survei</div></div>
   `;
 }
 
 function renderExpInfo(){
   const el=document.getElementById('exp-info');
   if(el) el.textContent=`${allData.length} data lokasi tersimpan`;
-}
-
-// ── EKSPOR SEMUA CSV ──
-function exportCSVSemua(){
-  if(!allData.length){toast('Tidak ada data','err');return;}
-  downloadCSV(allData, 'survei-cas-semua-'+today());
-}
-
-function downloadCSV(data, filename){
-  const cols=['ID','Tanggal','Jam','Nama Pemilik','Nama Toko','Jalan','Kelurahan','Kecamatan','Kabupaten','Provinsi','Google Maps','Status Lahan','Rekomendasi','Catatan','Nama Marketing','Koordinator Area','Nomer CP','Email'];
-  const rows=data.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.gmaps,d.status,d.rekomendasi,d.catatan,d.petugas,d.koordinator,d.nocp,d.email].map(val=>`"${(val||'').replace(/"/g,'""')}"`));
-  const csv=[cols.join(','),...rows.map(r=>r.join(','))].join('\n');
-  // Tambahkan BOM agar Excel bisa baca UTF-8
-  const bom = '\uFEFF';
-  dl(bom+csv, filename+'.csv','text/csv;charset=utf-8;');
-  toast('CSV diunduh!');
-}
-
-// ── EKSPOR SEMUA JSON ──
-function exportJSONSemua(){
-  if(!allData.length){toast('Tidak ada data','err');return;}
-  dl(JSON.stringify(allData,null,2),'survei-cas-'+today()+'.json','application/json');
-  toast('JSON diunduh!');
-}
-
-// ── COPY TEXT ──
-function copyText(){
-  if(!allData.length){toast('Tidak ada data','err');return;}
-  const txt=allData.map((d,i)=>`[${i+1}] ${d.nama}${d.toko?' / '+d.toko:''}
-Alamat     : ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')}
-Maps       : ${d.gmaps||'-'}
-Status     : ${d.status||'-'}
-Rekomendasi: ${d.rekomendasi||'-'}
-Catatan    : ${d.catatan||'-'}
-Marketing  : ${d.petugas||'-'}
-Koordinator: ${d.koordinator||'-'}
-CP         : ${d.nocp||'-'}
-Email      : ${d.email||'-'}
-Tanggal    : ${d.tgl} ${d.jam||''}
-${'─'.repeat(45)}`).join('\n');
-  navigator.clipboard.writeText(txt).then(()=>toast('Disalin ke clipboard!'),()=>toast('Gagal salin','err'));
-}
-
-// ── MODAL PILIH DATA ──
-function bukaModalPilih(mode){
-  if(!allData.length){toast('Tidak ada data','err');return;}
-  ekspor_mode = mode;
-  document.getElementById('exp-modal-title').textContent = mode==='pdf'?'Pilih Data → Download PDF':'Pilih Data → Download CSV';
-  const list = document.getElementById('exp-modal-list');
-  list.innerHTML = allData.map(d=>`
-    <div class="exp-item">
-      <input type="checkbox" id="chk-${d.id}" value="${d.id}" checked>
-      <div class="exp-item-info">
-        <div class="exp-item-name">${esc(d.nama)}${d.toko?' — '+esc(d.toko):''}</div>
-        <div class="exp-item-sub">${esc([d.kel,d.kec,d.kab].filter(Boolean).join(', '))} · ${d.tgl} · ${rekTagTxt(d.rekomendasi)}</div>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('exp-modal').classList.add('open');
-}
-
-function rekTagTxt(r){return r||'-';}
-
-function tutupModalPilih(){
-  document.getElementById('exp-modal').classList.remove('open');
-}
-
-function piliSemua(val){
-  document.querySelectorAll('#exp-modal-list input[type=checkbox]').forEach(cb=>cb.checked=val);
-}
-
-function eksporDipilih(){
-  const checked = [...document.querySelectorAll('#exp-modal-list input[type=checkbox]:checked')].map(cb=>parseInt(cb.value));
-  if(!checked.length){toast('Pilih minimal 1 data','err');return;}
-  const data = allData.filter(d=>checked.includes(d.id));
-  if(ekspor_mode==='csv'){
-    downloadCSV(data,'survei-cas-pilihan-'+today());
-  } else {
-    downloadPDFMulti(data);
-  }
-  tutupModalPilih();
-}
-
-// ── PDF SATU DATA ──
-async function downloadPDFSatu(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d){toast('Data tidak ditemukan','err');return;}
-  toast('Membuat PDF...');
-  await buatPDF([d]);
-}
-
-// ── PDF MULTI DATA ──
-async function downloadPDFMulti(data){
-  toast('Membuat PDF...');
-  await buatPDF(data);
-}
-
-async function buatPDF(dataArr){
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
-  const pageW = doc.internal.pageSize.getWidth();
-  const margin = 14;
-  const colW = pageW - margin*2;
-
-  for(let di=0; di<dataArr.length; di++){
-    const d = dataArr[di];
-    if(di>0) doc.addPage();
-
-    let y = 14;
-
-    // Header
-    doc.setFillColor(123,13,30);
-    doc.rect(0,0,pageW,20,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(13);
-    doc.setFont('helvetica','bold');
-    doc.text('SURVEI LOKASI CAS – Probolinggo',margin,13);
-    doc.setFontSize(8);
-    doc.setFont('helvetica','normal');
-    doc.text('Charging Station Survey Report',margin,18);
-    y = 26;
-
-    // Judul data
-    doc.setTextColor(30,30,30);
-    doc.setFontSize(14);
-    doc.setFont('helvetica','bold');
-    doc.text(`${d.nama}${d.toko?' – '+d.toko:''}`, margin, y);
-    y += 6;
-
-    if(d.rekomendasi){
-      const rColor = d.rekomendasi==='BBS'?[30,64,175]:[91,33,182];
-      doc.setFillColor(...rColor);
-      doc.setTextColor(255,255,255);
-      doc.setFontSize(9);
-      doc.roundedRect(margin, y, 30, 6, 2, 2, 'F');
-      doc.text(d.rekomendasi, margin+15, y+4.2, {align:'center'});
-      doc.setTextColor(30,30,30);
-      y += 10;
-    }
-
-    // Garis
-    doc.setDrawColor(220,220,220);
-    doc.line(margin, y, pageW-margin, y);
-    y += 5;
-
-    // Fungsi row
-    function row(label, val){
-      if(!val) return;
-      doc.setFontSize(8);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(107,114,128);
-      doc.text(label, margin, y);
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(30,30,30);
-      const lines = doc.splitTextToSize(val, colW-36);
-      doc.text(lines, margin+36, y);
-      y += lines.length*5 + 1;
-      if(y > 270){ doc.addPage(); y = 14; }
-    }
-
-    // Seksi
-    function seksi(judul){
-      y += 2;
-      doc.setFontSize(9);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(123,13,30);
-      doc.text(judul, margin, y);
-      doc.setDrawColor(123,13,30);
-      doc.line(margin, y+1, margin+colW, y+1);
-      doc.setDrawColor(220,220,220);
-      doc.setTextColor(30,30,30);
-      y += 6;
-    }
-
-    seksi('A. IDENTITAS LOKASI');
-    row('Nama Pemilik :', d.nama);
-    row('Nama Toko    :', d.toko);
-    row('Tanggal      :', d.tgl + (d.jam?' '+d.jam:''));
-
-    seksi('B. ALAMAT');
-    row('Jalan/RT/RW  :', d.jalan);
-    row('Kelurahan    :', d.kel);
-    row('Kecamatan    :', d.kec);
-    row('Kabupaten    :', d.kab);
-    row('Provinsi     :', d.prov);
-    row('Google Maps  :', d.gmaps);
-
-    seksi('C. KONDISI');
-    row('Status Lahan :', d.status);
-    row('Rekomendasi  :', d.rekomendasi);
-    row('Catatan      :', d.catatan);
-
-    seksi('D. TIM MARKETING');
-    row('Marketing    :', d.petugas);
-    row('Koordinator  :', d.koordinator);
-    row('Nomer CP     :', d.nocp);
-    row('Email        :', d.email);
-
-    // Foto
-    if(d.fotos && d.fotos.length){
-      seksi('E. FOTO LOKASI');
-      const fotoSize = 55;
-      const gap = 5;
-      const maxPerRow = Math.floor(colW / (fotoSize+gap));
-      let fx = margin;
-      let fy = y;
-
-      for(let fi=0; fi<d.fotos.length; fi++){
-        try{
-          if(fy + fotoSize + 14 > 285){ doc.addPage(); fy = 14; fx = margin; }
-          // Konversi base64 ke format yang jsPDF bisa baca
-          const imgData = d.fotos[fi];
-          // Deteksi format gambar dari data URL
-          let imgFormat = 'JPEG';
-          if(imgData.startsWith('data:image/png')) imgFormat = 'PNG';
-          else if(imgData.startsWith('data:image/webp')) imgFormat = 'WEBP';
-          // Gambar via canvas agar kompatibel semua format
-          await new Promise(resolve=>{
-            const img = new Image();
-            img.onload = ()=>{
-              try{
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth||img.width;
-                canvas.height = img.naturalHeight||img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img,0,0);
-                const jpgData = canvas.toDataURL('image/jpeg',0.85);
-                doc.addImage(jpgData,'JPEG',fx,fy,fotoSize,fotoSize);
-              }catch(e2){console.warn('addImage gagal:',e2);}
-              resolve();
-            };
-            img.onerror = ()=>resolve();
-            img.src = imgData;
-          });
-          doc.setFontSize(7);
-          doc.setTextColor(107,114,128);
-          doc.text(`Foto ${fi+1}`, fx+fotoSize/2, fy+fotoSize+3.5, {align:'center'});
-        }catch(e){console.warn('foto PDF error:',e);}
-        fx += fotoSize + gap;
-        if((fi+1)%maxPerRow===0){ fx=margin; fy+=fotoSize+10; }
-      }
-      y = fy + fotoSize + 12;
-    }
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let p=1; p<=pageCount; p++){
-      doc.setPage(p);
-      doc.setFontSize(7);
-      doc.setTextColor(150,150,150);
-      doc.text(`Survei CAS Probolinggo · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
-    }
-  }
-
-  const namaFile = dataArr.length===1
-    ? `survei-${(dataArr[0].nama||'data').replace(/\s+/g,'-')}-${today()}.pdf`
-    : `survei-cas-pilihan-${today()}.pdf`;
-  doc.save(namaFile);
-  toast('PDF berhasil diunduh!');
 }
 
 // ── CLOUD SYNC ──
@@ -902,8 +594,13 @@ async function pullFromCloud(){
     const json=await res.json();
     const remote=json.record||[];
     let merged=0;
-    remote.forEach(r=>{if(!allData.find(d=>d.id===r.id)){allData.unshift(r);merged++;}});
+    remote.forEach(r=>{
+      if(deletedIds.includes(r.id)) return; // jangan tarik balik data yg sudah dihapus
+      if(!allData.find(d=>d.id===r.id)){allData.unshift(r);merged++;}
+    });
     saveLocal(); renderData(); renderStats(); renderExpInfo();
+    // Bersihkan juga data terhapus dari server agar tidak terus ditarik petugas lain
+    if(deletedIds.length) pushToCloud(allData);
     setSyncBar(`Sinkron berhasil – ${merged} data baru ditambahkan`,'ok');
     setTimeout(()=>document.getElementById('sync-bar').style.display='none',3000);
   }catch(e){
@@ -935,7 +632,37 @@ async function testSync(){
   else toast('Gagal – periksa API Key dan Bin ID','err');
 }
 
-// ── IMPORT JSON ──
+// ── EKSPOR ──
+function exportCSV(){
+  if(!allData.length){toast('Tidak ada data','err');return;}
+  const cols=['ID','Tanggal','Jam','Nama Pemilik','Nama Toko','Jalan','Kelurahan','Kecamatan','Kabupaten','Provinsi','Latitude','Longitude','Google Maps','Status Lahan','Listrik','Daya (VA)','Sinyal/WiFi','Volume Kendaraan','Rekomendasi','Catatan','Petugas'];
+  const rows=allData.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.lat,d.lng,d.gmaps,d.status,d.listrik,d.daya,d.wifi,d.volume,d.rekomendasi,d.catatan,d.petugas].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+  dl([cols.join(','),...rows.map(r=>r.join(','))].join('\n'),'survei-cas-'+today()+'.csv','text/csv');
+  toast('CSV diunduh!');
+}
+
+function exportJSON(){
+  if(!allData.length){toast('Tidak ada data','err');return;}
+  dl(JSON.stringify(allData,null,2),'survei-cas-'+today()+'.json','application/json');
+  toast('JSON diunduh!');
+}
+
+function copyText(){
+  if(!allData.length){toast('Tidak ada data','err');return;}
+  const txt=allData.map((d,i)=>`[${i+1}] ${d.nama}${d.toko?' / '+d.toko:''}
+Alamat : ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')}
+GPS    : ${d.lat||'-'}, ${d.lng||'-'}
+Maps   : ${d.gmaps||'-'}
+Listrik: ${d.listrik||'-'}${d.daya?' ('+d.daya+' VA)':''}
+Sinyal : ${d.wifi||'-'}
+Volume : ${d.volume||'-'}
+Status : ${d.rekomendasi||'-'}
+Catatan: ${d.catatan||'-'}
+Petugas: ${d.petugas||'-'} | ${d.tgl} ${d.jam||''}
+${'─'.repeat(45)}`).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>toast('Disalin ke clipboard!'),()=>toast('Gagal salin','err'));
+}
+
 function importJSON(input){
   const f=input.files[0];if(!f) return;
   const r=new FileReader();
