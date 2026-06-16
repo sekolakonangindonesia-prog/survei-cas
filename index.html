@@ -187,7 +187,7 @@ textarea{resize:vertical;min-height:72px}
     <div class="field"><label>Rekomendasi</label>
       <select id="rekomendasi">
         <option value="">-- Pilih --</option>
-        <option>BBS</option>
+        <option>BSS</option>
         <option>SPKL</option>
       </select>
     </div>
@@ -227,7 +227,7 @@ textarea{resize:vertical;min-height:72px}
     <input type="text" id="search-q" placeholder="Cari nama, desa, kecamatan..." oninput="renderData()">
     <select id="filter-rek" onchange="renderData()">
       <option value="">Semua</option>
-      <option>BBS</option>
+      <option>BSS</option>
       <option>SPKL</option>
     </select>
   </div>
@@ -621,7 +621,7 @@ function lanjutBukaWA(id){
 // ── Tag rekomendasi ──
 function rekTag(r){
   if(!r) return '';
-  if(r==='BBS') return `<span class="tag tag-blue">BBS</span>`;
+  if(r==='BSS') return `<span class="tag tag-blue">BSS</span>`;
   if(r==='SPKL') return `<span class="tag tag-purple">SPKL</span>`;
   return `<span class="tag tag-gray">${r}</span>`;
 }
@@ -669,11 +669,11 @@ function renderStats(){
   const el=document.getElementById('stats');
   if(!el) return;
   const total=allData.length;
-  const bbs=allData.filter(d=>d.rekomendasi==='BBS').length;
+  const bss=allData.filter(d=>d.rekomendasi==='BSS').length;
   const spkl=allData.filter(d=>d.rekomendasi==='SPKL').length;
   el.innerHTML=`
     <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Total Lokasi</div></div>
-    <div class="stat"><div class="stat-num">${bbs}</div><div class="stat-lbl">BBS</div></div>
+    <div class="stat"><div class="stat-num">${bss}</div><div class="stat-lbl">BSS</div></div>
     <div class="stat"><div class="stat-num">${spkl}</div><div class="stat-lbl">SPKL</div></div>
   `;
 }
@@ -797,10 +797,10 @@ async function buatPDF(dataArr){
     doc.setTextColor(255,255,255);
     doc.setFontSize(13);
     doc.setFont('helvetica','bold');
-    doc.text('SURVEI LOKASI CAS – Probolinggo',margin,13);
+    doc.text('Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya',margin,13);
     doc.setFontSize(8);
     doc.setFont('helvetica','normal');
-    doc.text('Charging Station Survey Report',margin,18);
+    doc.text('PT. Gajah Nusantara Delapan - Area Probolinggo Raya',margin,18);
     y = 26;
 
     // Judul data
@@ -811,7 +811,7 @@ async function buatPDF(dataArr){
     y += 6;
 
     if(d.rekomendasi){
-      const rColor = d.rekomendasi==='BBS'?[30,64,175]:[91,33,182];
+      const rColor = d.rekomendasi==='BSS'?[30,64,175]:[91,33,182];
       doc.setFillColor(...rColor);
       doc.setTextColor(255,255,255);
       doc.setFontSize(9);
