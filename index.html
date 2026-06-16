@@ -454,48 +454,104 @@ function kirimWA(id){
   const d = allData.find(x=>x.id===id);
   if(!d){toast('Data tidak ditemukan','err');return;}
 
-  const teks = `🔌 *SURVEI LOKASI CAS*
-━━━━━━━━━━━━━━━━━━━
-👤 *Pemilik:* ${d.nama}${d.toko?' / '+d.toko:''}
-📍 *Alamat:* ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'}
-${d.gmaps?'🗺️ *Maps:* '+d.gmaps:''}
-🏷️ *Status Lahan:* ${d.status||'-'}
-✅ *Rekomendasi:* ${d.rekomendasi||'-'}
-📝 *Catatan:* ${d.catatan||'-'}
-━━━━━━━━━━━━━━━━━━━
-📌 *Marketing:* ${d.petugas||'-'}
-📌 *Koordinator:* ${d.koordinator||'-'}
-📞 *CP:* ${d.nocp||'-'}
-📧 *Email:* ${d.email||'-'}
-📅 *Tanggal:* ${d.tgl} ${d.jam||''}
-━━━━━━━━━━━━━━━━━━━
-${d.fotos&&d.fotos.length?'📷 '+d.fotos.length+' foto tersedia (kirim manual dari galeri)':''}`;
-
-  const encoded = encodeURIComponent(teks.trim());
-  const waUrl = 'https://wa.me/?text=' + encoded;
-
-  // Jika ada foto, tampilkan info dulu
+  // Jika ada foto, tampilkan panel info dulu (tanpa confirm/alert yang bisa diblok browser)
   if(d.fotos && d.fotos.length > 0){
-    // Buka foto di tab baru agar bisa disimpan ke galeri
-    const info = confirm(
-      `Data akan dibuka di WhatsApp.\n\n` +
-      `Ada ${d.fotos.length} foto yang perlu dikirim manual:\n` +
-      `1. Klik OK → WhatsApp terbuka dengan teks data\n` +
-      `2. Setelah kirim teks, klik tombol attachment (📎) di WA\n` +
-      `3. Pilih foto dari galeri HP Anda\n\n` +
-      `Lanjutkan?`
-    );
-    if(!info) return;
-    // Buka foto untuk mudah disimpan
-    d.fotos.forEach((f,i)=>{
+    tampilPanelWA(d);
+  } else {
+    bukaWALangsung(d);
+  }
+}
+
+function bukaWALangsung(d){
+  const teks = formatTeksWA(d);
+  const encoded = encodeURIComponent(teks);
+  // Gunakan location.href agar tidak diblok popup blocker mobile
+  window.location.href = 'https://wa.me/?text=' + encoded;
+}
+
+function formatTeksWA(d){
+  return [
+    '🔌 *SURVEI LOKASI CAS*',
+    '━━━━━━━━━━━━━━━━━━━',
+    `👤 *Pemilik:* ${d.nama}${d.toko?' / '+d.toko:''}`,
+    `📍 *Alamat:* ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'}`,
+    d.gmaps?`🗺️ *Maps:* ${d.gmaps}`:'',
+    `🏷️ *Status Lahan:* ${d.status||'-'}`,
+    `✅ *Rekomendasi:* ${d.rekomendasi||'-'}`,
+    d.catatan?`📝 *Catatan:* ${d.catatan}`:'',
+    '━━━━━━━━━━━━━━━━━━━',
+    `📌 *Marketing:* ${d.petugas||'-'}`,
+    d.koordinator?`📌 *Koordinator:* ${d.koordinator}`:'',
+    d.nocp?`📞 *CP:* ${d.nocp}`:'',
+    d.email?`📧 *Email:* ${d.email}`:'',
+    `📅 *Tanggal:* ${d.tgl}${d.jam?' '+d.jam:''}`,
+    d.fotos&&d.fotos.length?`━━━━━━━━━━━━━━━━━━━\n📷 *${d.fotos.length} foto* – dikirim terpisah via attachment WA`:''
+  ].filter(Boolean).join('\n');
+}
+
+// Panel info foto tanpa confirm() – dibuat sebagai overlay HTML
+function tampilPanelWA(d){
+  // Hapus panel lama jika ada
+  const old = document.getElementById('wa-panel');
+  if(old) old.remove();
+
+  const panel = document.createElement('div');
+  panel.id = 'wa-panel';
+  panel.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding:16px';
+
+  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
+
+  panel.innerHTML = `
+    <div style="background:#fff;border-radius:16px 16px 8px 8px;width:100%;max-width:480px;padding:20px;font-family:sans-serif">
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px">📤 Kirim ke WhatsApp</div>
+      <div style="font-size:13px;color:#6B7280;margin-bottom:14px;line-height:1.6">
+        Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>
+        <b>Langkah:</b><br>
+        1️⃣ Klik <b>"Simpan Foto"</b> – foto otomatis terunduh ke galeri HP<br>
+        2️⃣ Klik <b>"Buka WhatsApp"</b> – teks data terbuka di WA<br>
+        3️⃣ Di WA, klik 📎 lalu pilih foto dari galeri untuk dikirim
+      </div>
+      <div id="wa-foto-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
+        ${d.fotos.map((f,i)=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid #E5E7EB">`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="simpanFotoWA(${d.id})" style="flex:1;background:#0F6E56;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
+          📥 Simpan Foto (${d.fotos.length})
+        </button>
+        <button onclick="lanjutBukaWA(${d.id})" style="flex:1;background:#25D366;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
+          💬 Buka WhatsApp
+        </button>
+      </div>
+      <button onclick="document.getElementById('wa-panel').remove()" style="width:100%;background:none;border:1px solid #E5E7EB;padding:8px;border-radius:8px;font-size:13px;color:#6B7280;cursor:pointer;margin-top:8px">
+        Batal
+      </button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+}
+
+function simpanFotoWA(id){
+  const d = allData.find(x=>x.id===id);
+  if(!d||!d.fotos) return;
+  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
+  d.fotos.forEach((f,i)=>{
+    setTimeout(()=>{
       const a = document.createElement('a');
       a.href = f;
-      a.download = `foto-${d.nama.replace(/\s+/g,'-')}-${i+1}.jpg`;
+      a.download = `cas-${nama_bersih}-foto${i+1}.jpg`;
+      document.body.appendChild(a);
       a.click();
-    });
-  }
+      document.body.removeChild(a);
+    }, i * 300); // delay antar foto agar browser tidak blokir
+  });
+  toast(`${d.fotos.length} foto sedang diunduh...`);
+}
 
-  window.open(waUrl, '_blank');
+function lanjutBukaWA(id){
+  const d = allData.find(x=>x.id===id);
+  if(!d) return;
+  document.getElementById('wa-panel')?.remove();
+  bukaWALangsung(d);
 }
 
 // ── Tag rekomendasi ──
@@ -762,22 +818,45 @@ async function buatPDF(dataArr){
     // Foto
     if(d.fotos && d.fotos.length){
       seksi('E. FOTO LOKASI');
-      const fotoSize = 42;
-      const gap = 4;
+      const fotoSize = 55;
+      const gap = 5;
       const maxPerRow = Math.floor(colW / (fotoSize+gap));
       let fx = margin;
       let fy = y;
 
       for(let fi=0; fi<d.fotos.length; fi++){
         try{
-          if(fy + fotoSize + 10 > 285){ doc.addPage(); fy = 14; fx = margin; }
-          doc.addImage(d.fotos[fi],'JPEG',fx,fy,fotoSize,fotoSize);
+          if(fy + fotoSize + 14 > 285){ doc.addPage(); fy = 14; fx = margin; }
+          // Konversi base64 ke format yang jsPDF bisa baca
+          const imgData = d.fotos[fi];
+          // Deteksi format gambar dari data URL
+          let imgFormat = 'JPEG';
+          if(imgData.startsWith('data:image/png')) imgFormat = 'PNG';
+          else if(imgData.startsWith('data:image/webp')) imgFormat = 'WEBP';
+          // Gambar via canvas agar kompatibel semua format
+          await new Promise(resolve=>{
+            const img = new Image();
+            img.onload = ()=>{
+              try{
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth||img.width;
+                canvas.height = img.naturalHeight||img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img,0,0);
+                const jpgData = canvas.toDataURL('image/jpeg',0.85);
+                doc.addImage(jpgData,'JPEG',fx,fy,fotoSize,fotoSize);
+              }catch(e2){console.warn('addImage gagal:',e2);}
+              resolve();
+            };
+            img.onerror = ()=>resolve();
+            img.src = imgData;
+          });
           doc.setFontSize(7);
           doc.setTextColor(107,114,128);
-          doc.text(`Foto ${fi+1}`, fx+fotoSize/2, fy+fotoSize+3, {align:'center'});
-        }catch(e){}
+          doc.text(`Foto ${fi+1}`, fx+fotoSize/2, fy+fotoSize+3.5, {align:'center'});
+        }catch(e){console.warn('foto PDF error:',e);}
         fx += fotoSize + gap;
-        if((fi+1)%maxPerRow===0){ fx=margin; fy+=fotoSize+8; }
+        if((fi+1)%maxPerRow===0){ fx=margin; fy+=fotoSize+10; }
       }
       y = fy + fotoSize + 12;
     }
