@@ -206,10 +206,10 @@ textarea{resize:vertical;min-height:72px}
 
   <div class="section-label">E. Data Tim</div>
   <div class="field"><label>Nama Marketing *</label><input type="text" id="petugas" placeholder="Nama marketing lapangan"></div>
-  <div class="field"><label>Nama Koordinator Area</label><input type="text" id="koordinator" placeholder="Nama koordinator area"></div>
+  <div class="field"><label>Nama Koordinator Area</label><input type="text" id="koordinator" value="Hana Susanti" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
   <div class="row2">
-    <div class="field"><label>Nomer CP</label><input type="tel" id="nocp" placeholder="08xxxxxxxxxx"></div>
-    <div class="field"><label>Email</label><input type="email" id="email" placeholder="contoh@email.com"></div>
+    <div class="field"><label>Nomer CP</label><input type="text" id="nocp" value="0850859823588 / 085258861975" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
+    <div class="field"><label>Email</label><input type="email" id="email" value="sekolakonang@gmail.com" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
   </div>
 
   <div style="display:flex;gap:10px;margin-top:18px;margin-bottom:24px">
@@ -490,7 +490,7 @@ function saveLocal(){
 }
 
 function resetForm(){
-  ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas','koordinator','nocp','email'].forEach(id=>{
+  ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
   ['status','rekomendasi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -800,7 +800,7 @@ async function buatPDF(dataArr){
     doc.text('Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya',margin,13);
     doc.setFontSize(8);
     doc.setFont('helvetica','normal');
-    doc.text('PT. Gajah Nusantara Delapan - Area Probolinggo Raya',margin,18);
+    doc.text('PT. Gajah Nusantara Delapan - Probolinggo Raya',margin,18);
     y = 26;
 
     // Judul data
@@ -926,7 +926,7 @@ async function buatPDF(dataArr){
       doc.setPage(p);
       doc.setFontSize(7);
       doc.setTextColor(150,150,150);
-      doc.text(`Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
+      doc.text(`PT. Gajah Nusantara Delapan - Probolinggo Raya · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
     }
   }
 
