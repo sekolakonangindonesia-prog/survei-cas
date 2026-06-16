@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Survei Lokasi CAS – Probolinggo</title>
+<title>Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -137,8 +137,8 @@ textarea{resize:vertical;min-height:72px}
 <div class="header">
   <div class="header-logo"><i class="ti ti-bolt"></i></div>
   <div>
-    <div class="header-title">Survei Lokasi CAS</div>
-    <div class="header-sub">Charging Station – Probolinggo</div>
+    <div class="header-title">Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya</div>
+    <div class="header-sub">PT. Gajah Nusantara Delapan - Probolinggo Raya</div>
   </div>
   <button class="header-sync" onclick="syncNow()"><i class="ti ti-cloud-upload"></i> Sinkron</button>
 </div>
@@ -926,7 +926,7 @@ async function buatPDF(dataArr){
       doc.setPage(p);
       doc.setFontSize(7);
       doc.setTextColor(150,150,150);
-      doc.text(`Survei CAS Probolinggo · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
+      doc.text(`Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
     }
   }
 
