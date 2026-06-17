@@ -6,128 +6,170 @@
 <title>Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBmuW0Nd9B7EDQrHW-NW_x7yhI774GF7Yk",
+  authDomain: "survei-cas-probolinggo.firebaseapp.com",
+  projectId: "survei-cas-probolinggo",
+  storageBucket: "survei-cas-probolinggo.firebasestorage.app",
+  messagingSenderId: "919130347225",
+  appId: "1:919130347225:web:b6e5b284f88391235950c8"
+};
+
+const app = initializeApp(firebaseConfig);
+window._db = getFirestore(app);
+window._storage = getStorage(app);
+window._fb = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, ref, uploadString, getDownloadURL };
+window._firebaseReady = true;
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --c-primary:#0F6E56;--c-primary-bg:#E1F5EE;--c-primary-text:#085041;
-  --c-accent:#7B0D1E;
-  --c-bg:#F5F5F5;--c-surface:#FFFFFF;
-  --c-text:#1A1A1A;--c-muted:#6B7280;--c-border:#E5E7EB;
-  --c-success-bg:#D1FAE5;--c-success:#065F46;
-  --c-warn-bg:#FEF3C7;--c-warn:#92400E;
-  --c-danger-bg:#FEE2E2;--c-danger:#991B1B;
-  --c-info-bg:#DBEAFE;--c-info:#1E40AF;
+  --primary:#0F6E56;--primary-bg:#E1F5EE;
+  --accent:#7B0D1E;
+  --bg:#F5F5F5;--surface:#FFFFFF;
+  --text:#1A1A1A;--muted:#6B7280;--border:#E5E7EB;
+  --success-bg:#D1FAE5;--success:#065F46;
+  --warn-bg:#FEF3C7;--warn:#92400E;
+  --danger-bg:#FEE2E2;--danger:#991B1B;
+  --info-bg:#DBEAFE;--info:#1E40AF;
   --radius:10px;--radius-sm:6px;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--c-bg);color:var(--c-text);min-height:100vh;font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px}
 
-.header{background:var(--c-accent);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.header-logo{width:36px;height:36px;background:#fff2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+/* HEADER */
+.header{background:var(--accent);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header-logo{width:36px;height:36px;background:#fff2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .header-title{font-size:16px;font-weight:600;line-height:1.2}
 .header-sub{font-size:11px;opacity:.8}
-.header-sync{margin-left:auto;background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.header-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.hbtn{background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.fb-badge{font-size:11px;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.fb-ok{background:#D1FAE5;color:#065F46}
+.fb-err{background:#FEE2E2;color:#991B1B}
+.fb-loading{background:#DBEAFE;color:#1E40AF}
 
-.tabs{display:flex;background:var(--c-surface);border-bottom:1px solid var(--c-border);overflow-x:auto}
-.tab{flex:1;min-width:80px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--c-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-.tab.active{color:var(--c-primary);border-bottom-color:var(--c-primary)}
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{flex:1;min-width:75px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 .tab i{display:block;font-size:18px;margin-bottom:2px}
 
+/* PANE */
 .pane{display:none;padding:16px;max-width:700px;margin:0 auto}
 .pane.active{display:block}
 
-.section-label{font-size:11px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;border-left:3px solid var(--c-accent);padding-left:8px}
-
+/* FORM */
+.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;border-left:3px solid var(--accent);padding-left:8px}
 .field{margin-bottom:12px}
-label{display:block;font-size:13px;font-weight:500;color:var(--c-muted);margin-bottom:4px}
-input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--radius-sm);font-size:14px;color:var(--c-text);background:#fff;outline:none;transition:border-color .2s}
-input:focus,select:focus,textarea:focus{border-color:var(--c-primary)}
+label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}
 textarea{resize:vertical;min-height:72px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:opacity .2s}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:opacity .2s;white-space:nowrap}
 .btn:active{opacity:.8}
-.btn-primary{background:var(--c-primary);color:#fff;width:100%}
-.btn-outline{background:#fff;color:var(--c-text);border:1px solid var(--c-border);flex:1}
-.btn-danger{background:var(--c-danger-bg);color:var(--c-danger);font-size:12px;padding:6px 10px}
-.btn-wa{background:#25D366;color:#fff;font-size:12px;padding:6px 10px}
-.btn-pdf{background:#FF6B6B;color:#fff;font-size:12px;padding:6px 10px}
-.btn-export{background:var(--c-surface);border:1px solid var(--c-border);color:var(--c-text);width:100%;margin-bottom:8px;padding:12px 16px;text-align:left;justify-content:flex-start}
-.btn-export:hover{background:var(--c-bg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff;width:100%;justify-content:center}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border);justify-content:center}
+.btn-sm{padding:6px 10px;font-size:12px}
+.btn-danger{background:var(--danger-bg);color:var(--danger)}
+.btn-wa{background:#25D366;color:#fff}
+.btn-pdf{background:#FF6B6B;color:#fff}
+.btn-approve{background:#F59E0B;color:#fff}
+.btn-contract{background:var(--accent);color:#fff}
+.btn-export{background:var(--surface);border:1px solid var(--border);color:var(--text);width:100%;margin-bottom:8px;padding:12px 16px;text-align:left;justify-content:flex-start}
 
-.foto-upload{border:2px dashed var(--c-border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:#fafafa;margin-bottom:8px}
-.foto-upload:hover{border-color:var(--c-primary)}
+/* FOTO */
+.foto-upload{border:2px dashed var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:#fafafa;margin-bottom:8px}
+.foto-upload:hover{border-color:var(--primary)}
 .foto-upload input{display:none}
 .foto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
-.foto-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--c-border)}
+.foto-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)}
 
-.card{background:var(--c-surface);border-radius:var(--radius);border:1px solid var(--c-border);padding:14px 16px;margin-bottom:10px}
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:10px}
 .card-name{font-size:15px;font-weight:600;margin-bottom:2px}
-.card-addr{font-size:13px;color:var(--c-muted);margin-bottom:6px;display:flex;align-items:flex-start;gap:4px}
-.card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.card-addr{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;align-items:flex-start;gap:4px}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
-.tag-green{background:var(--c-success-bg);color:var(--c-success)}
-.tag-yellow{background:var(--c-warn-bg);color:var(--c-warn)}
-.tag-red{background:var(--c-danger-bg);color:var(--c-danger)}
-.tag-blue{background:var(--c-info-bg);color:var(--c-info)}
+.tag-green{background:var(--success-bg);color:var(--success)}
+.tag-blue{background:var(--info-bg);color:var(--info)}
 .tag-gray{background:#F3F4F6;color:#374151}
 .tag-purple{background:#EDE9FE;color:#5B21B6}
+.tag-orange{background:#FEF3C7;color:#92400E}
 .card-fotos{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}
 .card-fotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius-sm);cursor:pointer}
-.card-catatan{font-size:13px;color:var(--c-muted);border-left:2px solid var(--c-border);padding-left:8px;margin:6px 0}
-.card-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
-.card-footer{font-size:11px;color:var(--c-muted);margin-left:auto}
+.card-catatan{font-size:13px;color:var(--muted);border-left:2px solid var(--border);padding-left:8px;margin:6px 0}
+.card-actions{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.card-footer{font-size:11px;color:var(--muted);margin-left:auto;flex-shrink:0}
 
+/* STATS */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:12px;text-align:center}
-.stat-num{font-size:26px;font-weight:700;color:var(--c-primary)}
-.stat-lbl{font-size:11px;color:var(--c-muted);margin-top:2px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:var(--primary)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
 
+/* SEARCH */
 .search-bar{display:flex;gap:8px;margin-bottom:12px}
 .search-bar input{flex:1}
-.search-bar select{width:150px}
+.search-bar select{width:140px}
 
-.empty{text-align:center;padding:48px 20px;color:var(--c-muted)}
-.empty i{font-size:48px;display:block;margin-bottom:12px;color:var(--c-border)}
-.empty p{font-size:14px}
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty i{font-size:48px;display:block;margin-bottom:12px;color:var(--border)}
 
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center}
 
-.sync-bar{background:var(--c-info-bg);color:var(--c-info);font-size:12px;padding:8px 16px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
-.sync-bar.ok{background:var(--c-success-bg);color:var(--c-success)}
-.sync-bar.err{background:var(--c-danger-bg);color:var(--c-danger)}
+/* STATUS BAR */
+.status-bar{font-size:12px;padding:8px 16px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+.status-bar.info{background:var(--info-bg);color:var(--info)}
+.status-bar.ok{background:var(--success-bg);color:var(--success)}
+.status-bar.err{background:var(--danger-bg);color:var(--danger)}
 
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-overlay img{max-width:95vw;max-height:90vh;border-radius:var(--radius);object-fit:contain}
-.modal-close{position:fixed;top:16px;right:16px;background:#fff2;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* SPINNER */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff4;border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* EKSPOR MODAL */
-.exp-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:8888;align-items:center;justify-content:center;padding:16px}
-.exp-modal.open{display:flex}
-.exp-box{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
-.exp-box h3{font-size:15px;font-weight:700;margin-bottom:12px}
-.exp-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer}
-.exp-item:hover{background:var(--c-bg)}
-.exp-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--c-primary)}
-.exp-item-info{flex:1}
-.exp-item-name{font-size:13px;font-weight:600}
-.exp-item-sub{font-size:11px;color:var(--c-muted)}
-.exp-modal-actions{display:flex;gap:8px;margin-top:14px}
-.exp-modal-actions .btn{flex:1;justify-content:center}
+/* MODAL FOTO */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.overlay img{max-width:95vw;max-height:90vh;border-radius:var(--radius);object-fit:contain}
+.overlay-close{position:fixed;top:16px;right:16px;background:#fff2;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-.setup-card{background:var(--c-surface);border-radius:var(--radius);border:1px solid var(--c-border);padding:20px;margin-bottom:16px}
-.setup-card h3{font-size:15px;font-weight:600;margin-bottom:8px}
-.setup-card p{font-size:13px;color:var(--c-muted);margin-bottom:12px;line-height:1.6}
-.code-block{background:#F3F4F6;border-radius:var(--radius-sm);padding:10px 12px;font-family:monospace;font-size:12px;color:#374151;word-break:break-all;margin:8px 0}
-.step{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
-.step-num{width:24px;height:24px;min-width:24px;background:var(--c-accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
-.step-text{font-size:13px;color:var(--c-text);line-height:1.6}
+/* APPROVE MODAL */
+.apr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9000;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto}
+.apr-overlay.open{display:flex}
+.apr-box{background:#fff;border-radius:var(--radius);width:100%;max-width:600px;margin:auto}
+.apr-head{background:var(--accent);color:#fff;padding:14px 18px;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between}
+.apr-body{padding:16px}
+.apr-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+.apr-foot .btn{flex:1;justify-content:center;min-width:120px}
+
+/* KTP ZONE */
+.ktp-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;background:#F8FAFC;margin-bottom:8px}
+.ktp-zone:hover{border-color:var(--primary)}
+.ktp-zone input{display:none}
+.ktp-prev{width:100%;max-height:160px;object-fit:contain;border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:8px;display:none}
+
+/* WA PANEL */
+.wa-panel{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9100;display:none;align-items:flex-end;justify-content:center;padding:16px}
+.wa-panel.open{display:flex}
+.wa-box{background:#fff;border-radius:16px 16px 8px 8px;width:100%;max-width:480px;padding:20px}
 
 @media(max-width:480px){
   .row2{grid-template-columns:1fr}
-  .row3{grid-template-columns:1fr 1fr}
-  .stats{grid-template-columns:repeat(3,1fr)}
   .foto-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
@@ -136,14 +178,17 @@ textarea{resize:vertical;min-height:72px}
 
 <div class="header">
   <div class="header-logo"><i class="ti ti-bolt"></i></div>
-  <div>
-    <div class="header-title">Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya</div>
-    <div class="header-sub">PT. Gajah Nusantara Delapan - Probolinggo Raya</div>
+  <div style="min-width:0">
+    <div class="header-title">Survei 1000 Lokasi Strategis BSS & SPKL</div>
+    <div class="header-sub">PT. Gajah Nusantara Delapan – Probolinggo Raya</div>
   </div>
-  <button class="header-sync" onclick="syncNow()"><i class="ti ti-cloud-upload"></i> Sinkron</button>
+  <div class="header-right">
+    <span id="fb-badge" class="fb-badge fb-loading">⏳ Init</span>
+    <button class="hbtn" onclick="loadData()"><i class="ti ti-refresh"></i> Refresh</button>
+  </div>
 </div>
 
-<div id="sync-bar" class="sync-bar" style="display:none"></div>
+<div id="status-bar" style="display:none" class="status-bar info"></div>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('form')"><i class="ti ti-plus"></i>Input</div>
@@ -152,9 +197,8 @@ textarea{resize:vertical;min-height:72px}
   <div class="tab" onclick="switchTab('setup')"><i class="ti ti-settings"></i>Setup</div>
 </div>
 
-<!-- ═══════════ FORM ═══════════ -->
+<!-- ══════════════ FORM ══════════════ -->
 <div id="pane-form" class="pane active">
-
   <div class="section-label">A. Identitas Lokasi</div>
   <div class="field"><label>Nama Pemilik / PIC *</label><input type="text" id="nama" placeholder="Contoh: Zulfiqor"></div>
   <div class="field"><label>Nama Toko / Kios</label><input type="text" id="toko" placeholder="Contoh: Kios Toko Wawan"></div>
@@ -187,8 +231,7 @@ textarea{resize:vertical;min-height:72px}
     <div class="field"><label>Rekomendasi</label>
       <select id="rekomendasi">
         <option value="">-- Pilih --</option>
-        <option>BSS</option>
-        <option>SPKL</option>
+        <option>BSS</option><option>SPKL</option><option>BSS + SPKL</option>
       </select>
     </div>
   </div>
@@ -198,345 +241,757 @@ textarea{resize:vertical;min-height:72px}
 
   <div class="section-label">D. Foto Lokasi</div>
   <div class="foto-upload" onclick="document.getElementById('fotos').click()">
-    <i class="ti ti-camera" style="font-size:28px;color:var(--c-muted);display:block;margin-bottom:6px"></i>
-    <div style="font-size:13px;color:var(--c-muted)">Tap untuk upload foto<br><small>Tampak depan · Kios · Titik CAS · Screenshot GPS</small></div>
+    <i class="ti ti-camera" style="font-size:28px;color:var(--muted);display:block;margin-bottom:6px"></i>
+    <div style="font-size:13px;color:var(--muted)">Tap untuk upload foto<br><small>Tampak depan · Kios · Titik CAS · Screenshot GPS</small></div>
     <input type="file" id="fotos" accept="image/*" multiple onchange="previewFoto(this)">
   </div>
   <div class="foto-grid" id="foto-preview"></div>
 
   <div class="section-label">E. Data Tim</div>
   <div class="field"><label>Nama Marketing *</label><input type="text" id="petugas" placeholder="Nama marketing lapangan"></div>
-  <div class="field"><label>Nama Koordinator Area</label><input type="text" id="koordinator" value="Hana Susanti" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
+  <div class="field"><label>Nama Koordinator Area</label><input type="text" id="koordinator" value="Hana Susanti" readonly style="background:#F3F4F6;color:var(--muted)"></div>
   <div class="row2">
-    <div class="field"><label>Nomer CP</label><input type="text" id="nocp" value="0850859823588 / 085258861975" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
-    <div class="field"><label>Email</label><input type="email" id="email" value="sekolakonang@gmail.com" readonly style="background:#F3F4F6;color:var(--c-muted)"></div>
+    <div class="field"><label>Nomer CP</label><input type="text" id="nocp" value="0850859823588 / 085258861975" readonly style="background:#F3F4F6;color:var(--muted)"></div>
+    <div class="field"><label>Email</label><input type="email" id="email" value="sekolakonang@gmail.com" readonly style="background:#F3F4F6;color:var(--muted)"></div>
   </div>
 
-  <div style="display:flex;gap:10px;margin-top:18px;margin-bottom:24px">
-    <button class="btn btn-primary" onclick="simpan()"><i class="ti ti-check"></i> Simpan & Kirim Data</button>
+  <div style="display:flex;gap:10px;margin-top:18px;margin-bottom:8px">
+    <button id="btn-simpan" class="btn btn-primary" onclick="simpan()"><i class="ti ti-device-floppy"></i> Simpan & Kirim ke Firebase</button>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:24px">
-    <button class="btn btn-outline" onclick="resetForm()"><i class="ti ti-refresh"></i> Reset</button>
+    <button class="btn btn-outline" style="flex:1" onclick="resetForm()"><i class="ti ti-refresh"></i> Reset</button>
   </div>
 </div>
 
-<!-- ═══════════ DATA ═══════════ -->
+<!-- ══════════════ DATA ══════════════ -->
 <div id="pane-data" class="pane">
   <div class="stats" id="stats"></div>
   <div class="search-bar">
     <input type="text" id="search-q" placeholder="Cari nama, desa, kecamatan..." oninput="renderData()">
     <select id="filter-rek" onchange="renderData()">
       <option value="">Semua</option>
-      <option>BSS</option>
-      <option>SPKL</option>
+      <option>BSS</option><option>SPKL</option><option>BSS + SPKL</option>
     </select>
   </div>
   <div id="data-list"></div>
 </div>
 
-<!-- ═══════════ EKSPOR ═══════════ -->
+<!-- ══════════════ EKSPOR ══════════════ -->
 <div id="pane-export" class="pane">
   <div style="font-size:15px;font-weight:600;margin-bottom:4px">Ekspor Data Survei</div>
-  <div id="exp-info" style="font-size:13px;color:var(--c-muted);margin-bottom:16px"></div>
-
-  <!-- SEMUA DATA -->
-  <div style="font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;border-left:3px solid var(--c-accent);padding-left:8px">Ekspor Semua Data</div>
-
-  <button class="btn btn-export" onclick="exportCSVSemua()">
-    <i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--c-primary)"></i>
-    <div>
-      <div style="font-weight:600">Download CSV / Excel – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Buka di Microsoft Excel / Google Sheets</div>
-    </div>
+  <div id="exp-info" style="font-size:13px;color:var(--muted);margin-bottom:16px"></div>
+  <button class="btn btn-export" onclick="exportCSV()">
+    <i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--primary)"></i>
+    <div><div style="font-weight:600">Download CSV / Excel</div><div style="font-size:12px;color:var(--muted)">Buka di Microsoft Excel / Google Sheets</div></div>
   </button>
-
-  <button class="btn btn-export" onclick="exportJSONSemua()">
+  <button class="btn btn-export" onclick="exportJSON()">
     <i class="ti ti-code" style="font-size:20px;color:#7B0D1E"></i>
-    <div>
-      <div style="font-weight:600">Download JSON – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Backup / untuk developer</div>
-    </div>
+    <div><div style="font-weight:600">Download JSON – Backup</div><div style="font-size:12px;color:var(--muted)">File backup lengkap</div></div>
   </button>
-
   <button class="btn btn-export" onclick="copyText()">
     <i class="ti ti-clipboard-text" style="font-size:20px;color:#92400E"></i>
-    <div>
-      <div style="font-weight:600">Salin ke Clipboard – Semua Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Format teks ringkas – kirim via WhatsApp</div>
-    </div>
+    <div><div style="font-weight:600">Salin ke Clipboard – WhatsApp</div><div style="font-size:12px;color:var(--muted)">Format teks ringkas</div></div>
   </button>
-
-  <!-- SATU PERSATU -->
-  <div style="font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px;border-left:3px solid var(--c-accent);padding-left:8px">Ekspor Satu Persatu / Pilih Data</div>
-
-  <button class="btn btn-export" onclick="bukaModalPilih('csv')">
-    <i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--c-primary)"></i>
-    <div>
-      <div style="font-weight:600">Download CSV – Pilih Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Centang data yang ingin diunduh sebagai CSV</div>
-    </div>
-  </button>
-
-  <button class="btn btn-export" onclick="bukaModalPilih('pdf')">
-    <i class="ti ti-file-type-pdf" style="font-size:20px;color:#FF6B6B"></i>
-    <div>
-      <div style="font-weight:600">Download PDF – Pilih Data</div>
-      <div style="font-size:12px;color:var(--c-muted)">Data lengkap + foto, pilih satu atau lebih</div>
-    </div>
-  </button>
-
-  <!-- Import -->
-  <div style="margin-top:20px;border-top:1px solid var(--c-border);padding-top:16px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:8px">Import dari backup JSON</div>
-    <input type="file" id="import-file" accept=".json" onchange="importJSON(this)" style="font-size:13px">
-  </div>
 </div>
 
-<!-- ═══════════ SETUP ═══════════ -->
+<!-- ══════════════ SETUP ══════════════ -->
 <div id="pane-setup" class="pane">
-  <div class="setup-card">
-    <h3><i class="ti ti-cloud" style="color:var(--c-primary)"></i> Sinkronisasi Data Terpusat</h3>
-    <p>Agar data dari semua petugas lapangan bisa dikumpulkan di satu tempat, daftarkan dulu <b>JSONBin.io</b> (gratis, tidak perlu server).</p>
-    <div class="step"><div class="step-num">1</div><div class="step-text">Buka <b>jsonbin.io</b> → Register gratis → Login</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-text">Klik <b>API Keys</b> → Salin <b>Secret Key</b></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-text">Klik <b>Bins</b> → <b>New Bin</b> → isi <span class="code-block">[]</span> → Create → Salin <b>BIN ID</b></div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-text">Paste ke kolom di bawah → Simpan → Bagikan file HTML ini ke semua marketing</div></div>
-    <div class="field"><label>API Secret Key (X-Master-Key)</label><input type="password" id="cfg-apikey" placeholder="$2a$10$..."></div>
-    <div class="field"><label>Bin ID</label><input type="text" id="cfg-binid" placeholder="64abc123..."></div>
-    <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="saveConfig()"><i class="ti ti-device-floppy"></i> Simpan Konfigurasi</button>
-    <button class="btn btn-outline" style="margin-top:8px;margin-left:8px" onclick="testSync()"><i class="ti ti-plug"></i> Test Koneksi</button>
+  <div class="card">
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:8px"><i class="ti ti-cloud" style="color:var(--primary)"></i> Status Firebase</h3>
+    <div id="setup-status" style="font-size:13px;color:var(--muted);margin-bottom:12px">Memeriksa koneksi...</div>
+    <button class="btn btn-outline" style="width:auto" onclick="loadData()"><i class="ti ti-refresh"></i> Test Koneksi & Refresh Data</button>
   </div>
-  <div class="setup-card">
-    <h3><i class="ti ti-info-circle" style="color:var(--c-primary)"></i> Cara Pakai</h3>
-    <div class="step"><div class="step-num">1</div><div class="step-text">Simpan file HTML ini ke HP atau share link hosting</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-text">Marketing isi form, klik <b>Simpan & Kirim Data</b></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-text">Koordinator buka tab <b>Data</b>, klik <b>Sinkron</b> untuk tarik data terbaru</div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-text">Download CSV atau PDF dari tab <b>Ekspor</b> untuk laporan</div></div>
+  <div class="card" style="margin-top:12px">
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:8px"><i class="ti ti-info-circle" style="color:var(--primary)"></i> Cara Pakai</h3>
+    <div style="font-size:13px;color:var(--muted);line-height:1.8">
+      1. Isi form survei → klik <b>Simpan & Kirim ke Firebase</b><br>
+      2. Buka tab <b>Data</b> untuk lihat semua data<br>
+      3. Klik <b>Approve</b> → isi data KTP pemilik lahan → Simpan Approve<br>
+      4. Setelah approved, tombol berubah jadi <b>Download Kontrak</b><br>
+      5. Klik <b>Download Kontrak</b> untuk cetak PDF SPPL
+    </div>
   </div>
 </div>
 
-<!-- Modal foto besar -->
-<div class="modal-overlay" id="modal" onclick="this.classList.remove('open')">
-  <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
-  <img id="modal-img" src="" alt="Foto lokasi">
+<!-- ══════ MODAL FOTO BESAR ══════ -->
+<div class="overlay" id="overlay-foto" onclick="this.classList.remove('open')">
+  <button class="overlay-close">✕</button>
+  <img id="overlay-img" src="" alt="">
 </div>
 
-<!-- Modal pilih data ekspor -->
-<div class="exp-modal" id="exp-modal">
-  <div class="exp-box">
-    <h3 id="exp-modal-title">Pilih Data untuk Diunduh</h3>
-    <div style="font-size:12px;color:var(--c-muted);margin-bottom:12px">Centang data yang ingin diunduh</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="piliSemua(true)">Pilih Semua</button>
-      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="piliSemua(false)">Batal Semua</button>
+<!-- ══════ MODAL APPROVE (isi data KTP) ══════ -->
+<div class="apr-overlay" id="apr-overlay">
+  <div class="apr-box">
+    <div class="apr-head">
+      <div>
+        <div style="font-weight:700;font-size:15px"><i class="ti ti-clipboard-check"></i> Approve & Data Pemilik Lahan</div>
+        <div style="font-size:11px;opacity:.8">Isi data identitas pemilik sesuai KTP</div>
+      </div>
+      <button onclick="tutupApprove()" style="background:#fff2;border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
     </div>
-    <div id="exp-modal-list"></div>
-    <div class="exp-modal-actions">
-      <button class="btn btn-outline" onclick="tutupModalPilih()"><i class="ti ti-x"></i> Batal</button>
-      <button class="btn btn-primary" onclick="eksporDipilih()" style="flex:1"><i class="ti ti-download"></i> Unduh Dipilih</button>
+    <div class="apr-body">
+      <!-- Upload KTP -->
+      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Foto KTP</div>
+      <div class="ktp-zone" onclick="document.getElementById('ktp-inp').click()">
+        <i class="ti ti-id" style="font-size:28px;color:var(--muted);display:block;margin-bottom:4px"></i>
+        <div style="font-size:13px;color:var(--muted)">Upload Foto KTP Pemilik<br><small>Setelah upload, klik tombol Scan AI di bawah</small></div>
+        <input type="file" id="ktp-inp" accept="image/*" onchange="ktpUpload(this)">
+      </div>
+      <img id="ktp-prev" class="ktp-prev" src="" alt="KTP">
+      <button id="btn-scan" class="btn btn-primary" style="display:none;margin-bottom:12px" onclick="scanKTP()">
+        <i class="ti ti-scan"></i> Scan KTP Otomatis (AI)
+      </button>
+      <div id="ocr-ok" style="display:none;background:var(--success-bg);color:var(--success);font-size:12px;padding:6px 10px;border-radius:6px;margin-bottom:10px">
+        ✅ KTP berhasil dibaca – data telah diisi otomatis. Silakan periksa.
+      </div>
+
+      <!-- Data identitas -->
+      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">Data Identitas Pemilik Lahan</div>
+      <div class="field"><label>Nama Lengkap *</label><input type="text" id="a-nama" placeholder="Sesuai KTP"></div>
+      <div class="row2">
+        <div class="field"><label>Tempat Lahir</label><input type="text" id="a-tmplahir" placeholder="Kota lahir"></div>
+        <div class="field"><label>Tanggal Lahir</label><input type="text" id="a-tgllahir" placeholder="DD-MM-YYYY"></div>
+      </div>
+      <div class="field"><label>Alamat Lengkap (KTP)</label><textarea id="a-alamat" rows="2" placeholder="Alamat sesuai KTP"></textarea></div>
+      <div class="field"><label>NIK (16 digit)</label><input type="text" id="a-nik" placeholder="3514xxxxxxxxxx"></div>
+      <div class="row2">
+        <div class="field"><label>Agama</label><input type="text" id="a-agama" placeholder="Islam"></div>
+        <div class="field"><label>Pekerjaan</label><input type="text" id="a-pekerjaan" placeholder="Wiraswasta"></div>
+      </div>
+
+      <!-- Data sertifikat -->
+      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">Data Sertipikat Lahan</div>
+      <div class="row2">
+        <div class="field"><label>Jenis Hak</label>
+          <select id="a-jenishak">
+            <option value="">-- Pilih --</option>
+            <option>Hak Milik (SHM)</option><option>HGB</option>
+            <option>Hak Pakai</option><option>Letter C / Girik</option><option>Lainnya</option>
+          </select>
+        </div>
+        <div class="field"><label>No. Sertipikat</label><input type="text" id="a-nosertif" placeholder="SHM No. 12345"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Luas Bidang</label><input type="text" id="a-luas" placeholder="250 m²"></div>
+        <div class="field"><label>Atas Nama Sertipikat</label><input type="text" id="a-atasnama" placeholder="Nama di sertifikat"></div>
+      </div>
+      <div class="field"><label>Alamat Lokasi Tanah</label><input type="text" id="a-loktanah" placeholder="Alamat lokasi tanah"></div>
+      <div class="field"><label>Nomor Surat SPPL</label><input type="text" id="a-nomorsurat" placeholder="001/SPPL/WAI/VI/2026"></div>
     </div>
+    <div class="apr-foot">
+      <button id="btn-do-approve" class="btn btn-approve" onclick="doApprove()"><i class="ti ti-check"></i> Simpan & Approve</button>
+      <button class="btn btn-outline" onclick="tutupApprove()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ WA PANEL ══════ -->
+<div class="wa-panel" id="wa-panel">
+  <div class="wa-box">
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px">📤 Kirim ke WhatsApp</div>
+    <div id="wa-info" style="font-size:13px;color:#6B7280;margin-bottom:14px;line-height:1.7"></div>
+    <div id="wa-foto-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="wa-save-btn" onclick="simpanFotoWA()" style="flex:1;background:var(--primary);color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">📥 Simpan Foto</button>
+      <button onclick="lanjutBukaWA()" style="flex:1;background:#25D366;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">💬 Buka WhatsApp</button>
+    </div>
+    <button onclick="document.getElementById('wa-panel').classList.remove('open')" style="width:100%;background:none;border:1px solid var(--border);padding:8px;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer;margin-top:8px">Batal</button>
   </div>
 </div>
 
 <div class="toast" id="toast" style="opacity:0"></div>
 
 <script>
-const LOCAL_KEY = 'cas-survei-v2';
-const DELETED_KEY = 'cas-deleted-v2';
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
 let allData = [];
-let deletedIds = [];
 let fotoUrls = [];
-let cfg = {apikey:'', binid:''};
-let ekspor_mode = 'csv'; // 'csv' atau 'pdf'
+let ktpBase64 = null;
+let activeDocId = null;   // untuk approve / wa
+let waActiveId = null;
 
-// ── Init ──
-function init(){
-  const raw = localStorage.getItem(LOCAL_KEY);
-  if(raw) try{allData = JSON.parse(raw);}catch(e){}
-  const delRaw = localStorage.getItem(DELETED_KEY);
-  if(delRaw) try{deletedIds = JSON.parse(delRaw);}catch(e){}
-  const cfgRaw = localStorage.getItem('cas-cfg');
-  if(cfgRaw) try{cfg = JSON.parse(cfgRaw);}catch(e){}
-  document.getElementById('cfg-apikey').value = cfg.apikey||'';
-  document.getElementById('cfg-binid').value = cfg.binid||'';
-  const now = new Date();
-  document.getElementById('tgl').value = now.toISOString().slice(0,10);
-  document.getElementById('jam').value = now.toTimeString().slice(0,5);
-  renderData(); renderStats(); renderExpInfo();
-}
+// ═══════════════════════════════
+//  FIREBASE
+// ═══════════════════════════════
+let db, storage, fb;
 
-// ── Tabs ──
-function switchTab(id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById('pane-'+id).classList.add('active');
-  const idx={form:0,data:1,export:2,setup:3}[id];
-  document.querySelectorAll('.tab')[idx].classList.add('active');
-  if(id==='data'){renderData();renderStats();}
-  if(id==='export') renderExpInfo();
-}
-
-// ── Foto ──
-// Kompres foto sebelum disimpan agar tidak melebihi kuota localStorage
-// dan agar foto besar dari kamera/galeri tidak gagal diproses.
-function kompresFoto(file, maxDim, kualitas){
-  return new Promise((resolve)=>{
-    const r = new FileReader();
-    r.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        let w = img.naturalWidth, h = img.naturalHeight;
-        if(w > h){ if(w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; } }
-        else { if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; } }
-        try{
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', kualitas));
-        }catch(err){
-          console.warn('Kompres gagal, pakai asli:', err);
-          resolve(e.target.result);
-        }
-      };
-      img.onerror = () => { console.warn('Gagal load gambar untuk kompresi'); resolve(null); };
-      img.src = e.target.result;
-    };
-    r.onerror = () => resolve(null);
-    r.readAsDataURL(file);
+function waitFB(){
+  return new Promise(r=>{
+    if(window._firebaseReady){ assign(); r(); return; }
+    window.addEventListener('firebase-ready',()=>{ assign(); r(); },{once:true});
+    setTimeout(()=>{ assign(); r(); }, 8000);
   });
 }
-
-let fotoUploadCounter = 0; // mencegah preview yang sudah usang menimpa yang baru
-
-async function previewFoto(input){
-  const myRun = ++fotoUploadCounter;
-  const files = Array.from(input.files);
-  if(!files.length) return;
-
-  fotoUrls = [];
-  document.getElementById('foto-preview').innerHTML = '';
-  toast('Memproses '+files.length+' foto, mohon tunggu...');
-
-  const dipakai = files.slice(0,6);
-  if(files.length > 6) toast('Hanya 6 foto pertama yang dipakai','warn');
-
-  let gagal = 0;
-  for(const f of dipakai){
-    const hasil = await kompresFoto(f, 1280, 0.65);
-    if(myRun !== fotoUploadCounter) return; // user sudah ganti pilihan foto lain, batalkan
-    if(hasil){
-      fotoUrls.push(hasil);
-      const img=document.createElement('img');
-      img.src=hasil;
-      document.getElementById('foto-preview').appendChild(img);
-    } else {
-      gagal++;
-    }
-  }
-
-  if(gagal) toast(gagal+' foto gagal diproses, '+fotoUrls.length+' berhasil','warn');
-  else toast(fotoUrls.length+' foto siap disimpan');
+function assign(){
+  db=window._db; storage=window._storage; fb=window._fb;
+  if(db) setFbBadge('ok','☁️ Firebase OK');
+  else setFbBadge('err','❌ Gagal');
+}
+function setFbBadge(type,txt){
+  const el=document.getElementById('fb-badge');
+  el.className='fb-badge fb-'+type; el.textContent=txt;
+  const st=document.getElementById('setup-status');
+  if(st) st.textContent = type==='ok'?'Firebase terhubung. Data otomatis tersinkronisasi.':'Gagal terhubung ke Firebase. Periksa koneksi internet.';
 }
 
-// ── Simpan ──
-async function simpan(){
-  const nama=v('nama'),tgl=v('tgl'),petugas=v('petugas');
-  if(!nama){toast('Nama pemilik wajib diisi','err');return;}
-  if(!tgl){toast('Tanggal wajib diisi','err');return;}
-  if(!petugas){toast('Nama marketing wajib diisi','err');return;}
-
-  const entry={
-    id:Date.now(), nama, tgl,
-    jam:v('jam'), toko:v('toko'),
-    jalan:v('jalan'), kel:v('kel'), kec:v('kec'), kab:v('kab'), prov:v('prov'),
-    gmaps:v('gmaps'),
-    status:v('status'), rekomendasi:v('rekomendasi'),
-    catatan:v('catatan'),
-    petugas,
-    koordinator:v('koordinator'),
-    nocp:v('nocp'),
-    email:v('email'),
-    fotos: fotoUrls.slice(0,6)
-  };
-
-  allData.unshift(entry);
-  const tersimpan = saveLocal();
-  if(!tersimpan){
-    allData.shift(); // batalkan, kuota localStorage penuh
-    return;
-  }
-  toast('Data tersimpan! Mengirim...');
-  resetForm();
-  if(cfg.apikey && cfg.binid){
-    const ok = await pushToCloud(allData);
-    if(ok) toast('Data berhasil terkirim ke server!');
-    else toast('Tersimpan lokal. Sinkron manual saat ada koneksi.','warn');
-  }
-  renderStats(); renderData();
-}
-
-function v(id){return document.getElementById(id)?.value?.trim()||'';}
-
-function saveLocal(){
-  try{
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(allData));
-    return true;
-  }catch(e){
-    toast('Penyimpanan penuh! Data/foto tidak tersimpan. Hapus data lama dulu.','err');
-    console.error('localStorage gagal:', e);
-    return false;
-  }
-}
-
-function resetForm(){
-  ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value='';
-  });
-  ['status','rekomendasi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fotos').value='';
-  document.getElementById('foto-preview').innerHTML='';
-  fotoUrls=[];
+async function init(){
+  await waitFB();
   const now=new Date();
   document.getElementById('tgl').value=now.toISOString().slice(0,10);
   document.getElementById('jam').value=now.toTimeString().slice(0,5);
+  autoNomorSurat();
+  await loadData();
 }
 
-// ── Hapus ──
-function hapus(id){
+function autoNomorSurat(){
+  const now=new Date();
+  const bulan=String(now.getMonth()+1).padStart(2,'0');
+  const tahun=now.getFullYear();
+  const urut=String(allData.length+1).padStart(3,'0');
+  const el=document.getElementById('a-nomorsurat');
+  if(el&&!el.value) el.value=`${urut}/SPPL/WAI/${bulan}/${tahun}`;
+}
+
+// ─── LOAD ───
+async function loadData(){
+  if(!db){ toast('Firebase belum siap','err'); return; }
+  setBar('Mengambil data...','info');
+  try{
+    const {collection,getDocs,query,orderBy}=fb;
+    const q=query(collection(db,'survei_lokasi'),orderBy('createdAt','desc'));
+    const snap=await getDocs(q);
+    allData=snap.docs.map(d=>({...d.data(),_docId:d.id}));
+    renderData(); renderStats(); renderExpInfo();
+    setBar('','','hide');
+    toast('✅ '+allData.length+' data dimuat');
+  }catch(e){
+    setBar('Gagal memuat: '+e.message,'err');
+    console.error(e);
+  }
+}
+
+// ─── SAVE ───
+async function simpan(){
+  if(!db){ toast('Firebase belum siap','err'); return; }
+  const nama=g('nama'), tgl=g('tgl'), petugas=g('petugas');
+  if(!nama){ toast('Nama pemilik wajib diisi','err'); return; }
+  if(!tgl){ toast('Tanggal wajib diisi','err'); return; }
+  if(!petugas){ toast('Nama marketing wajib diisi','err'); return; }
+
+  const btn=document.getElementById('btn-simpan');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Menyimpan...';
+
+  const entry={
+    id:Date.now(), nama, tgl, jam:g('jam'), toko:g('toko'),
+    jalan:g('jalan'), kel:g('kel'), kec:g('kec'), kab:g('kab'), prov:g('prov'), gmaps:g('gmaps'),
+    status:g('status'), rekomendasi:g('rekomendasi'), catatan:g('catatan'),
+    petugas, koordinator:g('koordinator'), nocp:g('nocp'), email:g('email'),
+    fotos:[], approved:false,
+    // data approve (kosong dulu)
+    a_nama:'',a_nik:'',a_tmplahir:'',a_tgllahir:'',a_alamat:'',a_agama:'',a_pekerjaan:'',
+    a_jenishak:'',a_nosertif:'',a_luas:'',a_atasnama:'',a_loktanah:'',a_nomorsurat:'',
+    a_ktpUrl:'',a_approvedBy:'',a_approvedAt:''
+  };
+
+  try{
+    setBar('Menyimpan data ke Firebase...','info');
+    const {collection,addDoc,serverTimestamp,doc,updateDoc}=fb;
+    const docRef=await addDoc(collection(db,'survei_lokasi'),{...entry,createdAt:serverTimestamp()});
+    const docId=docRef.id;
+
+    // Upload foto ke Storage
+    if(fotoUrls.length){
+      const urls=[];
+      for(let i=0;i<fotoUrls.length;i++){
+        setBar(`Upload foto ${i+1}/${fotoUrls.length}...`,'info');
+        const {ref,uploadString,getDownloadURL}=fb;
+        const r=ref(storage,`survei/${docId}/foto_${i}.jpg`);
+        await uploadString(r,fotoUrls[i],'data_url');
+        urls.push(await getDownloadURL(r));
+      }
+      await updateDoc(doc(db,'survei_lokasi',docId),{fotos:urls});
+      entry.fotos=urls;
+    }
+
+    entry._docId=docId;
+    allData.unshift(entry);
+    renderData(); renderStats(); renderExpInfo();
+    setBar('✅ Tersimpan di Firebase','ok');
+    setTimeout(()=>setBar('','','hide'),3000);
+    toast('Data berhasil disimpan! 🎉');
+    resetForm();
+  }catch(err){
+    setBar('Gagal simpan: '+err.message,'err');
+    toast('Gagal: '+err.message,'err');
+    console.error(err);
+  }finally{
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-device-floppy"></i> Simpan & Kirim ke Firebase';
+  }
+}
+
+// ─── DELETE ───
+async function hapus(docId){
   if(!confirm('Hapus data ini?')) return;
-  allData=allData.filter(d=>d.id!==id);
-  deletedIds.push(id);
-  localStorage.setItem(DELETED_KEY, JSON.stringify(deletedIds));
-  saveLocal(); renderData(); renderStats(); renderExpInfo();
-  if(cfg.apikey&&cfg.binid) pushToCloud(allData);
-  toast('Data dihapus');
+  try{
+    const {doc,deleteDoc}=fb;
+    await deleteDoc(doc(db,'survei_lokasi',docId));
+    allData=allData.filter(d=>d._docId!==docId);
+    renderData(); renderStats(); renderExpInfo();
+    toast('Data dihapus');
+  }catch(e){ toast('Gagal hapus: '+e.message,'err'); }
 }
 
-// ── Kirim ke WhatsApp ──
-function kirimWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d){toast('Data tidak ditemukan','err');return;}
+// ═══════════════════════════════
+//  APPROVE FLOW
+// ═══════════════════════════════
+function bukaApprove(docId){
+  const d=allData.find(x=>x._docId===docId);
+  if(!d){ toast('Data tidak ditemukan','err'); return; }
+  activeDocId=docId;
+  ktpBase64=null;
 
-  // Jika ada foto, tampilkan panel info dulu (tanpa confirm/alert yang bisa diblok browser)
-  if(d.fotos && d.fotos.length > 0){
-    tampilPanelWA(d);
+  // Reset KTP area
+  document.getElementById('ktp-prev').style.display='none';
+  document.getElementById('btn-scan').style.display='none';
+  document.getElementById('ocr-ok').style.display='none';
+  document.getElementById('ktp-inp').value='';
+
+  // Isi data dari data survey (nama & alamat sudah ada)
+  document.getElementById('a-nama').value=d.a_nama||d.nama||'';
+  document.getElementById('a-tmplahir').value=d.a_tmplahir||'';
+  document.getElementById('a-tgllahir').value=d.a_tgllahir||'';
+  document.getElementById('a-alamat').value=d.a_alamat||[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'';
+  document.getElementById('a-nik').value=d.a_nik||'';
+  document.getElementById('a-agama').value=d.a_agama||'';
+  document.getElementById('a-pekerjaan').value=d.a_pekerjaan||'';
+  document.getElementById('a-jenishak').value=d.a_jenishak||'';
+  document.getElementById('a-nosertif').value=d.a_nosertif||'';
+  document.getElementById('a-luas').value=d.a_luas||'';
+  document.getElementById('a-atasnama').value=d.a_atasnama||d.nama||'';
+  document.getElementById('a-loktanah').value=d.a_loktanah||[d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'';
+
+  // Nomor surat otomatis
+  const now=new Date();
+  const idx=allData.findIndex(x=>x._docId===docId);
+  const urut=String(idx+1).padStart(3,'0');
+  const bln=String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('a-nomorsurat').value=d.a_nomorsurat||`${urut}/SPPL/WAI/${bln}/${now.getFullYear()}`;
+
+  document.getElementById('apr-overlay').classList.add('open');
+}
+
+function tutupApprove(){
+  document.getElementById('apr-overlay').classList.remove('open');
+  activeDocId=null; ktpBase64=null;
+}
+
+// KTP Upload
+function ktpUpload(input){
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    ktpBase64=e.target.result;
+    const prev=document.getElementById('ktp-prev');
+    prev.src=ktpBase64; prev.style.display='block';
+    document.getElementById('btn-scan').style.display='flex';
+    document.getElementById('ocr-ok').style.display='none';
+    toast('KTP terupload. Klik "Scan KTP Otomatis (AI)"');
+  };
+  r.readAsDataURL(file);
+}
+
+// Scan KTP dengan Claude AI
+async function scanKTP(){
+  if(!ktpBase64){ toast('Upload foto KTP dulu','err'); return; }
+  const btn=document.getElementById('btn-scan');
+  btn.innerHTML='<span class="spin"></span> Membaca KTP...'; btn.disabled=true;
+
+  try{
+    // Kompres sebelum kirim
+    const compressed=await kompresBase64(ktpBase64,1024,0.85);
+    const b64=compressed.split(',')[1];
+
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:600,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+            {type:'text',text:`Ini foto KTP Indonesia. Baca semua data yang terlihat.
+Kembalikan HANYA JSON murni (tanpa markdown backtick apapun):
+{"nama":"","nik":"","tempat_lahir":"","tanggal_lahir":"","jenis_kelamin":"","alamat":"","rt_rw":"","kel_desa":"","kecamatan":"","agama":"","pekerjaan":""}
+Field yang tidak terbaca biarkan kosong "".`}
+          ]
+        }]
+      })
+    });
+
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error?.message||'API '+res.status);
+
+    const rawText=data.content?.find(c=>c.type==='text')?.text||'';
+    let ktp;
+    try{
+      ktp=JSON.parse(rawText.replace(/```[\s\S]*?```/g,'').replace(/```/g,'').trim());
+    }catch(e2){
+      // Coba extract JSON dari teks
+      const match=rawText.match(/\{[\s\S]*\}/);
+      if(match) ktp=JSON.parse(match[0]);
+      else throw new Error('Format respons tidak valid. Coba foto lebih jelas.');
+    }
+
+    // Isi form
+    if(ktp.nama) document.getElementById('a-nama').value=ktp.nama;
+    if(ktp.nik) document.getElementById('a-nik').value=ktp.nik;
+    if(ktp.tempat_lahir) document.getElementById('a-tmplahir').value=ktp.tempat_lahir;
+    if(ktp.tanggal_lahir) document.getElementById('a-tgllahir').value=ktp.tanggal_lahir;
+    const alamatParts=[ktp.alamat,ktp.rt_rw,ktp.kel_desa,ktp.kecamatan].filter(Boolean);
+    if(alamatParts.length) document.getElementById('a-alamat').value=alamatParts.join(', ');
+    if(ktp.agama) document.getElementById('a-agama').value=ktp.agama;
+    if(ktp.pekerjaan) document.getElementById('a-pekerjaan').value=ktp.pekerjaan;
+    if(ktp.nama) document.getElementById('a-atasnama').value=ktp.nama;
+
+    document.getElementById('ocr-ok').style.display='block';
+    btn.style.display='none';
+    toast('✅ KTP berhasil dibaca otomatis!');
+
+  }catch(err){
+    toast('Gagal scan: '+err.message,'err');
+    btn.innerHTML='<i class="ti ti-scan"></i> Scan KTP Otomatis (AI)'; btn.disabled=false;
+    console.error(err);
+  }
+}
+
+// Simpan Approve ke Firebase
+async function doApprove(){
+  if(!activeDocId){ toast('Tidak ada data aktif','err'); return; }
+  const nama=document.getElementById('a-nama').value.trim();
+  if(!nama){ toast('Nama pemilik wajib diisi','err'); return; }
+
+  const btn=document.getElementById('btn-do-approve');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Menyimpan...';
+
+  try{
+    const now=new Date();
+    const approvedAt=now.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+
+    // Upload KTP foto ke Storage jika ada
+    let ktpUrl='';
+    if(ktpBase64){
+      setBar('Mengupload foto KTP...','info');
+      const {ref,uploadString,getDownloadURL}=fb;
+      const r=ref(storage,`survei/${activeDocId}/ktp.jpg`);
+      await uploadString(r,ktpBase64,'data_url');
+      ktpUrl=await getDownloadURL(r);
+    }
+
+    const updateData={
+      approved:true,
+      a_nama:nama,
+      a_nik:document.getElementById('a-nik').value.trim(),
+      a_tmplahir:document.getElementById('a-tmplahir').value.trim(),
+      a_tgllahir:document.getElementById('a-tgllahir').value.trim(),
+      a_alamat:document.getElementById('a-alamat').value.trim(),
+      a_agama:document.getElementById('a-agama').value.trim(),
+      a_pekerjaan:document.getElementById('a-pekerjaan').value.trim(),
+      a_jenishak:document.getElementById('a-jenishak').value,
+      a_nosertif:document.getElementById('a-nosertif').value.trim(),
+      a_luas:document.getElementById('a-luas').value.trim(),
+      a_atasnama:document.getElementById('a-atasnama').value.trim(),
+      a_loktanah:document.getElementById('a-loktanah').value.trim(),
+      a_nomorsurat:document.getElementById('a-nomorsurat').value.trim(),
+      a_ktpUrl:ktpUrl,
+      a_approvedBy:g('petugas')||'Koordinator',
+      a_approvedAt:approvedAt
+    };
+
+    const {doc,updateDoc}=fb;
+    await updateDoc(doc(db,'survei_lokasi',activeDocId),updateData);
+
+    // Update local
+    const idx=allData.findIndex(x=>x._docId===activeDocId);
+    if(idx>=0) allData[idx]={...allData[idx],...updateData};
+
+    renderData(); renderStats();
+    setBar('✅ Data approve tersimpan','ok');
+    setTimeout(()=>setBar('','','hide'),3000);
+    toast('✅ Approve berhasil! Kontrak siap didownload.');
+    tutupApprove();
+
+  }catch(err){
+    setBar('Gagal approve: '+err.message,'err');
+    toast('Gagal: '+err.message,'err');
+    console.error(err);
+  }finally{
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Simpan & Approve';
+  }
+}
+
+// ═══════════════════════════════
+//  DOWNLOAD KONTRAK PDF
+// ═══════════════════════════════
+async function downloadKontrak(docId){
+  const d=allData.find(x=>x._docId===docId);
+  if(!d){ toast('Data tidak ditemukan','err'); return; }
+  if(!d.approved){ toast('Data belum di-approve','err'); return; }
+
+  toast('Membuat PDF kontrak...');
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth();
+  const ph=doc.internal.pageSize.getHeight();
+  const ml=25, mr=25;
+  const tw=pw-ml-mr;
+  let y=18;
+
+  // ── LOGO & HEADER ──
+  // Lingkaran logo
+  doc.setFillColor(123,13,30);
+  doc.circle(pw/2, y+8, 10, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('N', pw/2, y+12, {align:'center'});
+  y+=22;
+
+  doc.setFontSize(15); doc.setFont('helvetica','bold');
+  doc.setTextColor(123,13,30);
+  doc.text('WIRA ARTHA INVESTAMA', pw/2, y, {align:'center'});
+  y+=5;
+
+  // Garis bawah nama perusahaan
+  doc.setDrawColor(123,13,30); doc.setLineWidth(0.6);
+  doc.line(ml, y, pw-mr, y);
+  y+=8;
+
+  // Judul surat
+  doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.setTextColor(20,20,20);
+  doc.text('SURAT PERSETUJUAN PEMILIK LAHAN', pw/2, y, {align:'center'});
+  y+=6;
+  doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(100,100,100);
+  doc.text('Nomor: '+(d.a_nomorsurat||'-'), pw/2, y, {align:'center'});
+  y+=10;
+
+  // Intro
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(30,30,30);
+  const introTxt='Yang bertanda tangan di bawah ini (selanjutnya disebut sebagai "Pemilik Lahan"), menerangkan sebagai berikut:';
+  const introLines=doc.splitTextToSize(introTxt,tw);
+  doc.text(introLines,ml,y); y+=introLines.length*5.5+5;
+
+  // ── TABEL DATA PEMILIK ──
+  const rows=[
+    ['Nama', d.a_nama||'-'],
+    ['Tempat, Tanggal Lahir', [d.a_tmplahir,d.a_tgllahir].filter(Boolean).join(', ')||'-'],
+    ['Alamat', d.a_alamat||'-'],
+    ['Nomor Induk Kependudukan (NIK)', d.a_nik||'-'],
+    ['Jenis Hak & Nomor Sertipikat', [d.a_jenishak,d.a_nosertif].filter(Boolean).join(' – ')||'-'],
+    ['Luas Bidang', d.a_luas||'-'],
+    ['Atas Nama Sertipikat', d.a_atasnama||'-'],
+    ['Alamat Lokasi Tanah', d.a_loktanah||'-'],
+  ];
+
+  const c1=55, c2=tw-c1;
+  doc.setFontSize(9);
+
+  rows.forEach((r,i)=>{
+    const valLines=doc.splitTextToSize(r[1],c2-4);
+    const rh=Math.max(9,valLines.length*5+4);
+    if(y+rh>265){doc.addPage();y=18;}
+
+    // Alternating rows
+    if(i%2===0){doc.setFillColor(248,249,250);doc.rect(ml,y,tw,rh,'F');}
+    doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
+    doc.rect(ml,y,tw,rh,'S');
+    doc.rect(ml,y,c1,rh,'S');
+
+    doc.setFont('helvetica','bold'); doc.setTextColor(50,50,50);
+    const lblLines=doc.splitTextToSize(r[0],c1-4);
+    doc.text(lblLines,ml+2,y+4.5);
+
+    doc.setFont('helvetica','normal'); doc.setTextColor(20,20,20);
+    doc.text(valLines,ml+c1+2,y+4.5);
+    y+=rh;
+  });
+  y+=8;
+
+  // ── BUTIR-BUTIR ──
+  const butir=[
+    'Pemilik Lahan adalah pemilik sah atas bidang tanah sebagaimana data pada tabel di atas.',
+    'Pemilik Lahan dengan ini memberikan izin dan persetujuan kepada:\n\nNama Pihak (Individu/PT): PT. WIRA ARTHA INVESTAMA\nAlamat: Jl. Sriwijaya I No. 35 Selong Kb. Baru, Jakarta Selatan\n(selanjutnya disebut sebagai "Penyewa").',
+    'Pemilik Lahan memberikan izin kepada Penyewa untuk menyewakan kembali (sublease) sebagian atau seluruh lahan milik Pemilik Lahan tersebut kepada PT Vgreen Global Charging Station Investment Indonesia ("VGreen"), untuk digunakan sebagai lokasi Stasiun Pengisian Kendaraan Listrik (SPKL) luas 3m²×6m² dan Baterai Swap Station (BSS) luas 1m²×1m² beserta fasilitas penunjangnya.',
+    'Pemilik Lahan mengetahui dan menyetujui bahwa perjanjian sewa menyewa akan dilaksanakan antara Penyewa dan VGreen.',
+    'Pemilik Lahan tidak akan mengajukan keberatan, tuntutan, atau klaim dalam bentuk apa pun terhadap pelaksanaan perjanjian tersebut sepanjang dilaksanakan sesuai dengan peraturan perundang-undangan yang berlaku di Republik Indonesia.',
+    'Surat Persetujuan ini dibuat dan ditandatangani secara sadar, tanpa paksaan dari pihak mana pun, untuk digunakan sebagaimana mestinya.',
+  ];
+
+  doc.setFontSize(9.5); doc.setFont('helvetica','normal'); doc.setTextColor(25,25,25);
+  butir.forEach((b,i)=>{
+    if(y>245){doc.addPage();y=18;}
+    doc.setFont('helvetica','bold');
+    doc.text(String(i+1)+'.', ml, y);
+    doc.setFont('helvetica','normal');
+    const lines=doc.splitTextToSize(b,tw-8);
+    doc.text(lines,ml+7,y);
+    y+=lines.length*5.5+2;
+  });
+
+  // ── TANDA TANGAN ──
+  y+=10;
+  if(y>235){doc.addPage();y=18;}
+  const tgl=new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+  doc.setFontSize(9.5); doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+  doc.text('Jakarta, '+tgl, pw-mr, y, {align:'right'});
+  y+=8;
+
+  const cL=ml, cR=pw/2+10, sigW=(tw/2)-5;
+  doc.text('Pemilik Lahan', cL+sigW/2, y, {align:'center'});
+  doc.text('Penyewa (Individu/PT)', cR+sigW/2, y, {align:'center'});
+  y+=30;
+
+  doc.setDrawColor(80,80,80); doc.setLineWidth(0.4);
+  doc.line(cL,y,cL+sigW,y);
+  doc.line(cR,y,cR+sigW,y);
+  y+=5;
+
+  doc.setFontSize(9);
+  doc.text('('+( d.a_nama||'...........................')+')' , cL+sigW/2, y, {align:'center'});
+  doc.text('(______________________________)', cR+sigW/2, y, {align:'center'});
+  y+=5;
+  doc.setFont('helvetica','bold');
+  doc.text('SUGIMAN', cR+sigW/2, y, {align:'center'});
+  y+=4; doc.setFont('helvetica','normal');
+  doc.text('Direktur Utama', cR+sigW/2, y, {align:'center'});
+
+  // ── FOOTER ──
+  const pages=doc.internal.getNumberOfPages();
+  for(let p=1;p<=pages;p++){
+    doc.setPage(p);
+    doc.setDrawColor(123,13,30); doc.setLineWidth(0.5);
+    doc.line(ml,ph-14,pw-mr,ph-14);
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(123,13,30);
+    doc.text('Equity Tower Lvl 22, Sudirman Central Business District Lot.9, Jakarta Selatan', pw/2, ph-9, {align:'center'});
+  }
+
+  const fn=`SPPL_${(d.a_nama||'Pemilik').replace(/\s+/g,'-')}_${today()}.pdf`;
+  doc.save(fn);
+  toast('📄 PDF Kontrak diunduh!');
+}
+
+// ═══════════════════════════════
+//  RENDER DATA
+// ═══════════════════════════════
+function renderData(){
+  const q=(document.getElementById('search-q')||{value:''}).value.toLowerCase();
+  const fr=(document.getElementById('filter-rek')||{value:''}).value;
+  const list=allData.filter(d=>{
+    const txt=[d.nama,d.toko,d.kel,d.kec,d.kab,d.petugas].join(' ').toLowerCase();
+    return (!q||txt.includes(q))&&(!fr||d.rekomendasi===fr);
+  });
+  const area=document.getElementById('data-list');
+  if(!list.length){
+    area.innerHTML=`<div class="empty"><i class="ti ti-map-off"></i><p>${allData.length?'Tidak ada yang cocok':'Belum ada data'}</p></div>`;
+    return;
+  }
+  area.innerHTML=list.map(d=>`
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
+        <div class="card-name">${esc(d.nama)}${d.toko?' — '+esc(d.toko):''}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0">
+          ${rekTag(d.rekomendasi)}
+          ${d.approved?'<span class="tag tag-green">✅ Approved</span>':'<span class="tag tag-orange">⏳ Belum Approve</span>'}
+        </div>
+      </div>
+      <div class="card-addr"><i class="ti ti-map-pin" style="margin-top:1px;flex-shrink:0"></i>${esc([d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', '))}</div>
+      ${d.status?`<div class="card-meta"><span class="tag tag-gray"><i class="ti ti-home"></i> ${esc(d.status)}</span></div>`:''}
+      ${d.gmaps?`<a href="${esc(d.gmaps)}" target="_blank" style="font-size:12px;color:var(--primary);display:inline-flex;align-items:center;gap:4px;margin-bottom:6px"><i class="ti ti-external-link"></i>Google Maps</a>`:''}
+      ${d.catatan?`<div class="card-catatan">${esc(d.catatan)}</div>`:''}
+      ${d.fotos&&d.fotos.length?`<div class="card-fotos">${d.fotos.map(f=>`<img src="${f}" onclick="openFoto(this.src)" loading="lazy">`).join('')}</div>`:''}
+      ${d.approved&&d.a_approvedBy?`<div style="font-size:11px;color:var(--success);margin-top:4px"><i class="ti ti-check"></i> Disetujui oleh ${esc(d.a_approvedBy)} – ${esc(d.a_approvedAt)}</div>`:''}
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">
+        ${d.koordinator?`Koordinator: <b>${esc(d.koordinator)}</b> · `:''}
+        ${d.nocp?esc(d.nocp)+' · ':''}
+        ${d.email?esc(d.email):''}
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-wa" onclick="kirimWA('${d._docId}')"><i class="ti ti-brand-whatsapp"></i> WA</button>
+        <button class="btn btn-sm btn-pdf" onclick="downloadPDFSurvei('${d._docId}')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+        ${d.approved
+          ? `<button class="btn btn-sm btn-contract" onclick="downloadKontrak('${d._docId}')"><i class="ti ti-file-invoice"></i> Download Kontrak</button>`
+          : `<button class="btn btn-sm btn-approve" onclick="bukaApprove('${d._docId}')"><i class="ti ti-clipboard-check"></i> Approve</button>`
+        }
+        <button class="btn btn-sm btn-danger" onclick="hapus('${d._docId}')"><i class="ti ti-trash"></i></button>
+        <div class="card-footer">${d.tgl} ${d.jam||''} · ${esc(d.petugas||'')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderStats(){
+  const el=document.getElementById('stats'); if(!el) return;
+  const total=allData.length;
+  const bss=allData.filter(d=>d.rekomendasi&&d.rekomendasi.includes('BSS')).length;
+  const spkl=allData.filter(d=>d.rekomendasi&&d.rekomendasi.includes('SPKL')).length;
+  el.innerHTML=`
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-num">${bss}</div><div class="stat-lbl">BSS</div></div>
+    <div class="stat"><div class="stat-num">${spkl}</div><div class="stat-lbl">SPKL</div></div>`;
+}
+function renderExpInfo(){
+  const el=document.getElementById('exp-info');
+  if(el) el.textContent=allData.length+' data tersimpan di Firebase';
+}
+
+function rekTag(r){
+  if(!r) return '';
+  if(r.includes('BSS')&&r.includes('SPKL')) return `<span class="tag tag-green">BSS+SPKL</span>`;
+  if(r==='BSS') return `<span class="tag tag-blue">BSS</span>`;
+  if(r==='SPKL') return `<span class="tag tag-purple">SPKL</span>`;
+  return `<span class="tag tag-gray">${r}</span>`;
+}
+
+// ═══════════════════════════════
+//  WHATSAPP
+// ═══════════════════════════════
+function kirimWA(docId){
+  const d=allData.find(x=>x._docId===docId); if(!d) return;
+  waActiveId=docId;
+  if(d.fotos&&d.fotos.length){
+    const panel=document.getElementById('wa-panel');
+    document.getElementById('wa-info').innerHTML=`Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>1️⃣ Klik <b>Simpan Foto</b> → 2️⃣ Klik <b>Buka WhatsApp</b> → 3️⃣ Di WA, lampirkan foto dari galeri`;
+    const grid=document.getElementById('wa-foto-grid');
+    grid.innerHTML=d.fotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px">`).join('');
+    document.getElementById('wa-save-btn').textContent='📥 Simpan Foto ('+d.fotos.length+')';
+    panel.classList.add('open');
   } else {
     bukaWALangsung(d);
   }
 }
 
-function bukaWALangsung(d){
-  const teks = formatTeksWA(d);
-  const encoded = encodeURIComponent(teks);
-  // Gunakan location.href agar tidak diblok popup blocker mobile
-  window.location.href = 'https://wa.me/?text=' + encoded;
+function simpanFotoWA(){
+  const d=allData.find(x=>x._docId===waActiveId); if(!d||!d.fotos) return;
+  const nm=(d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
+  d.fotos.forEach((f,i)=>{
+    setTimeout(()=>{
+      const a=document.createElement('a'); a.href=f; a.download=`cas-${nm}-foto${i+1}.jpg`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    },i*400);
+  });
+  toast(d.fotos.length+' foto sedang diunduh...');
 }
 
-function formatTeksWA(d){
-  return [
-    '🔌 *SURVEI LOKASI CAS*',
-    '━━━━━━━━━━━━━━━━━━━',
+function lanjutBukaWA(){
+  document.getElementById('wa-panel').classList.remove('open');
+  const d=allData.find(x=>x._docId===waActiveId); if(d) bukaWALangsung(d);
+}
+
+function bukaWALangsung(d){
+  const teks=['🔌 *SURVEI LOKASI CAS*','━━━━━━━━━━━━━━━━━━━',
     `👤 *Pemilik:* ${d.nama}${d.toko?' / '+d.toko:''}`,
     `📍 *Alamat:* ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'}`,
     d.gmaps?`🗺️ *Maps:* ${d.gmaps}`:'',
@@ -547,495 +1002,160 @@ function formatTeksWA(d){
     `📌 *Marketing:* ${d.petugas||'-'}`,
     d.koordinator?`📌 *Koordinator:* ${d.koordinator}`:'',
     d.nocp?`📞 *CP:* ${d.nocp}`:'',
-    d.email?`📧 *Email:* ${d.email}`:'',
-    `📅 *Tanggal:* ${d.tgl}${d.jam?' '+d.jam:''}`,
-    d.fotos&&d.fotos.length?`━━━━━━━━━━━━━━━━━━━\n📷 *${d.fotos.length} foto* – dikirim terpisah via attachment WA`:''
+    `📅 *Tanggal:* ${d.tgl}${d.jam?' '+d.jam:''}`
   ].filter(Boolean).join('\n');
+  window.location.href='https://wa.me/?text='+encodeURIComponent(teks);
 }
 
-// Panel info foto tanpa confirm() – dibuat sebagai overlay HTML
-function tampilPanelWA(d){
-  // Hapus panel lama jika ada
-  const old = document.getElementById('wa-panel');
-  if(old) old.remove();
-
-  const panel = document.createElement('div');
-  panel.id = 'wa-panel';
-  panel.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding:16px';
-
-  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
-
-  panel.innerHTML = `
-    <div style="background:#fff;border-radius:16px 16px 8px 8px;width:100%;max-width:480px;padding:20px;font-family:sans-serif">
-      <div style="font-size:15px;font-weight:700;margin-bottom:6px">📤 Kirim ke WhatsApp</div>
-      <div style="font-size:13px;color:#6B7280;margin-bottom:14px;line-height:1.6">
-        Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>
-        <b>Langkah:</b><br>
-        1️⃣ Klik <b>"Simpan Foto"</b> – foto otomatis terunduh ke galeri HP<br>
-        2️⃣ Klik <b>"Buka WhatsApp"</b> – teks data terbuka di WA<br>
-        3️⃣ Di WA, klik 📎 lalu pilih foto dari galeri untuk dikirim
-      </div>
-      <div id="wa-foto-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
-        ${d.fotos.map((f,i)=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid #E5E7EB">`).join('')}
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="simpanFotoWA(${d.id})" style="flex:1;background:#0F6E56;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
-          📥 Simpan Foto (${d.fotos.length})
-        </button>
-        <button onclick="lanjutBukaWA(${d.id})" style="flex:1;background:#25D366;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:120px">
-          💬 Buka WhatsApp
-        </button>
-      </div>
-      <button onclick="document.getElementById('wa-panel').remove()" style="width:100%;background:none;border:1px solid #E5E7EB;padding:8px;border-radius:8px;font-size:13px;color:#6B7280;cursor:pointer;margin-top:8px">
-        Batal
-      </button>
-    </div>
-  `;
-  document.body.appendChild(panel);
-}
-
-function simpanFotoWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d||!d.fotos) return;
-  const nama_bersih = (d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
-  d.fotos.forEach((f,i)=>{
-    setTimeout(()=>{
-      const a = document.createElement('a');
-      a.href = f;
-      a.download = `cas-${nama_bersih}-foto${i+1}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }, i * 300); // delay antar foto agar browser tidak blokir
-  });
-  toast(`${d.fotos.length} foto sedang diunduh...`);
-}
-
-function lanjutBukaWA(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d) return;
-  document.getElementById('wa-panel')?.remove();
-  bukaWALangsung(d);
-}
-
-// ── Tag rekomendasi ──
-function rekTag(r){
-  if(!r) return '';
-  if(r==='BSS') return `<span class="tag tag-blue">BSS</span>`;
-  if(r==='SPKL') return `<span class="tag tag-purple">SPKL</span>`;
-  return `<span class="tag tag-gray">${r}</span>`;
-}
-
-// ── Render Data ──
-function renderData(){
-  const q=(document.getElementById('search-q')||{value:''}).value.toLowerCase();
-  const fr=(document.getElementById('filter-rek')||{value:''}).value;
-  const list=allData.filter(d=>{
-    const txt=[d.nama,d.toko,d.kel,d.kec,d.kab,d.petugas,d.koordinator].join(' ').toLowerCase();
-    return (!q||txt.includes(q))&&(!fr||d.rekomendasi===fr);
-  });
-  const area=document.getElementById('data-list');
-  if(!list.length){
-    area.innerHTML=`<div class="empty"><i class="ti ti-map-off"></i><p>Belum ada data survei</p></div>`;
-    return;
-  }
-  area.innerHTML=list.map(d=>`
-    <div class="card">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
-        <div class="card-name">${esc(d.nama)}${d.toko?' — '+esc(d.toko):''}</div>
-        ${rekTag(d.rekomendasi)}
-      </div>
-      <div class="card-addr"><i class="ti ti-map-pin" style="margin-top:1px;flex-shrink:0"></i>${esc([d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', '))}</div>
-      ${d.status?`<div class="card-meta"><span class="tag tag-gray"><i class="ti ti-home"></i> ${esc(d.status)}</span></div>`:''}
-      ${d.gmaps?`<a href="${esc(d.gmaps)}" target="_blank" style="font-size:12px;color:var(--c-primary);display:inline-flex;align-items:center;gap:4px;margin-bottom:6px"><i class="ti ti-external-link"></i>Buka Google Maps</a>`:''}
-      ${d.catatan?`<div class="card-catatan">${esc(d.catatan)}</div>`:''}
-      ${d.fotos&&d.fotos.length?`<div class="card-fotos">${d.fotos.map(f=>`<img src="${f}" onclick="openModal(this.src)" loading="lazy">`).join('')}</div>`:''}
-      <div style="font-size:12px;color:var(--c-muted);margin-top:6px">
-        ${d.koordinator?`<span>Koordinator: <b>${esc(d.koordinator)}</b></span> · `:''}
-        ${d.nocp?`<span>CP: ${esc(d.nocp)}</span> · `:''}
-        ${d.email?`<span>${esc(d.email)}</span>`:''}
-      </div>
-      <div class="card-actions">
-        <button class="btn btn-wa" onclick="kirimWA(${d.id})"><i class="ti ti-brand-whatsapp"></i> WA</button>
-        <button class="btn btn-pdf" onclick="downloadPDFSatu(${d.id})"><i class="ti ti-file-type-pdf"></i> PDF</button>
-        <button class="btn btn-danger" onclick="hapus(${d.id})"><i class="ti ti-trash"></i> Hapus</button>
-        <div class="card-footer"><i class="ti ti-calendar"></i> ${d.tgl} ${d.jam||''} · ${esc(d.petugas||'')}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderStats(){
-  const el=document.getElementById('stats');
-  if(!el) return;
-  const total=allData.length;
-  const bss=allData.filter(d=>d.rekomendasi==='BSS').length;
-  const spkl=allData.filter(d=>d.rekomendasi==='SPKL').length;
-  el.innerHTML=`
-    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Total Lokasi</div></div>
-    <div class="stat"><div class="stat-num">${bss}</div><div class="stat-lbl">BSS</div></div>
-    <div class="stat"><div class="stat-num">${spkl}</div><div class="stat-lbl">SPKL</div></div>
-  `;
-}
-
-function renderExpInfo(){
-  const el=document.getElementById('exp-info');
-  if(el) el.textContent=`${allData.length} data lokasi tersimpan`;
-}
-
-// ── EKSPOR SEMUA CSV ──
-function exportCSVSemua(){
+// ═══════════════════════════════
+//  EKSPOR
+// ═══════════════════════════════
+function exportCSV(){
   if(!allData.length){toast('Tidak ada data','err');return;}
-  downloadCSV(allData, 'survei-cas-semua-'+today());
-}
-
-function downloadCSV(data, filename){
-  const cols=['ID','Tanggal','Jam','Nama Pemilik','Nama Toko','Jalan','Kelurahan','Kecamatan','Kabupaten','Provinsi','Google Maps','Status Lahan','Rekomendasi','Catatan','Nama Marketing','Koordinator Area','Nomer CP','Email'];
-  const rows=data.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.gmaps,d.status,d.rekomendasi,d.catatan,d.petugas,d.koordinator,d.nocp,d.email].map(val=>`"${(val||'').replace(/"/g,'""')}"`));
+  const cols=['ID','Tanggal','Jam','Nama','Toko','Jalan','Kelurahan','Kecamatan','Kabupaten','Provinsi','Maps','Status','Rekomendasi','Catatan','Marketing','Koordinator','Approved','Tgl Approve'];
+  const rows=allData.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.gmaps,d.status,d.rekomendasi,d.catatan,d.petugas,d.koordinator,d.approved?'Ya':'Tidak',d.a_approvedAt||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
   const csv=[cols.join(','),...rows.map(r=>r.join(','))].join('\n');
-  // Tambahkan BOM agar Excel bisa baca UTF-8
-  const bom = '\uFEFF';
-  dl(bom+csv, filename+'.csv','text/csv;charset=utf-8;');
+  dl('\uFEFF'+csv,'survei-'+today()+'.csv','text/csv;charset=utf-8;');
   toast('CSV diunduh!');
 }
-
-// ── EKSPOR SEMUA JSON ──
-function exportJSONSemua(){
+function exportJSON(){
   if(!allData.length){toast('Tidak ada data','err');return;}
-  dl(JSON.stringify(allData,null,2),'survei-cas-'+today()+'.json','application/json');
+  dl(JSON.stringify(allData,null,2),'backup-'+today()+'.json','application/json');
   toast('JSON diunduh!');
 }
-
-// ── COPY TEXT ──
 function copyText(){
   if(!allData.length){toast('Tidak ada data','err');return;}
-  const txt=allData.map((d,i)=>`[${i+1}] ${d.nama}${d.toko?' / '+d.toko:''}
-Alamat     : ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')}
-Maps       : ${d.gmaps||'-'}
-Status     : ${d.status||'-'}
-Rekomendasi: ${d.rekomendasi||'-'}
-Catatan    : ${d.catatan||'-'}
-Marketing  : ${d.petugas||'-'}
-Koordinator: ${d.koordinator||'-'}
-CP         : ${d.nocp||'-'}
-Email      : ${d.email||'-'}
-Tanggal    : ${d.tgl} ${d.jam||''}
-${'─'.repeat(45)}`).join('\n');
-  navigator.clipboard.writeText(txt).then(()=>toast('Disalin ke clipboard!'),()=>toast('Gagal salin','err'));
+  const txt=allData.map((d,i)=>`[${i+1}] ${d.nama}${d.toko?' / '+d.toko:''}\nAlamat: ${[d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'-'}\nRek: ${d.rekomendasi||'-'} | Status: ${d.status||'-'}\nMarketing: ${d.petugas||'-'} | ${d.tgl}\n${'─'.repeat(40)}`).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>toast('Disalin!'),()=>toast('Gagal salin','err'));
 }
 
-// ── MODAL PILIH DATA ──
-function bukaModalPilih(mode){
-  if(!allData.length){toast('Tidak ada data','err');return;}
-  ekspor_mode = mode;
-  document.getElementById('exp-modal-title').textContent = mode==='pdf'?'Pilih Data → Download PDF':'Pilih Data → Download CSV';
-  const list = document.getElementById('exp-modal-list');
-  list.innerHTML = allData.map(d=>`
-    <div class="exp-item">
-      <input type="checkbox" id="chk-${d.id}" value="${d.id}" checked>
-      <div class="exp-item-info">
-        <div class="exp-item-name">${esc(d.nama)}${d.toko?' — '+esc(d.toko):''}</div>
-        <div class="exp-item-sub">${esc([d.kel,d.kec,d.kab].filter(Boolean).join(', '))} · ${d.tgl} · ${rekTagTxt(d.rekomendasi)}</div>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('exp-modal').classList.add('open');
-}
+// ═══════════════════════════════
+//  PDF SURVEI
+// ═══════════════════════════════
+async function downloadPDFSurvei(docId){
+  const d=allData.find(x=>x._docId===docId); if(!d){toast('Data tidak ditemukan','err');return;}
+  toast('Membuat PDF survei...');
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth();
+  const margin=14; const tw=pw-margin*2; let y=14;
 
-function rekTagTxt(r){return r||'-';}
+  doc.setFillColor(123,13,30); doc.rect(0,0,pw,20,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('Survei 1000 Lokasi Strategis BSS & SPKL – Probolinggo Raya',margin,12);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('PT. Gajah Nusantara Delapan',margin,18);
+  y=26;
+  doc.setTextColor(30,30,30); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y); y+=8;
 
-function tutupModalPilih(){
-  document.getElementById('exp-modal').classList.remove('open');
-}
+  function seksi(t){y+=2;doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);doc.text(t,margin,y);doc.setDrawColor(123,13,30);doc.line(margin,y+1,margin+tw,y+1);doc.setDrawColor(220,220,220);doc.setTextColor(30,30,30);y+=6;}
+  function row(l,v){if(!v)return;doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(107,114,128);doc.text(l,margin,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(v,tw-38);doc.text(ls,margin+38,y);y+=ls.length*5+1;if(y>270){doc.addPage();y=14;}}
 
-function piliSemua(val){
-  document.querySelectorAll('#exp-modal-list input[type=checkbox]').forEach(cb=>cb.checked=val);
-}
+  seksi('LOKASI');
+  row('Jalan/RT/RW:',d.jalan);row('Kelurahan:',d.kel);row('Kecamatan:',d.kec);row('Kabupaten:',d.kab);row('Maps:',d.gmaps);
+  seksi('KONDISI');
+  row('Status Lahan:',d.status);row('Rekomendasi:',d.rekomendasi);row('Catatan:',d.catatan);
+  seksi('TIM');
+  row('Marketing:',d.petugas);row('Koordinator:',d.koordinator);row('Nomer CP:',d.nocp);row('Tanggal:',d.tgl+' '+d.jam);
 
-function eksporDipilih(){
-  const checked = [...document.querySelectorAll('#exp-modal-list input[type=checkbox]:checked')].map(cb=>parseInt(cb.value));
-  if(!checked.length){toast('Pilih minimal 1 data','err');return;}
-  const data = allData.filter(d=>checked.includes(d.id));
-  if(ekspor_mode==='csv'){
-    downloadCSV(data,'survei-cas-pilihan-'+today());
-  } else {
-    downloadPDFMulti(data);
-  }
-  tutupModalPilih();
-}
-
-// ── PDF SATU DATA ──
-async function downloadPDFSatu(id){
-  const d = allData.find(x=>x.id===id);
-  if(!d){toast('Data tidak ditemukan','err');return;}
-  toast('Membuat PDF...');
-  await buatPDF([d]);
-}
-
-// ── PDF MULTI DATA ──
-async function downloadPDFMulti(data){
-  toast('Membuat PDF...');
-  await buatPDF(data);
-}
-
-async function buatPDF(dataArr){
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF({orientation:'p',unit:'mm',format:'a4'});
-  const pageW = doc.internal.pageSize.getWidth();
-  const margin = 14;
-  const colW = pageW - margin*2;
-
-  for(let di=0; di<dataArr.length; di++){
-    const d = dataArr[di];
-    if(di>0) doc.addPage();
-
-    let y = 14;
-
-    // Header
-    doc.setFillColor(123,13,30);
-    doc.rect(0,0,pageW,20,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(13);
-    doc.setFont('helvetica','bold');
-    doc.text('Survei 1000 Lokasi Strategis BSS & SPKL - Probolinggo Raya',margin,13);
-    doc.setFontSize(8);
-    doc.setFont('helvetica','normal');
-    doc.text('PT. Gajah Nusantara Delapan - Probolinggo Raya',margin,18);
-    y = 26;
-
-    // Judul data
-    doc.setTextColor(30,30,30);
-    doc.setFontSize(14);
-    doc.setFont('helvetica','bold');
-    doc.text(`${d.nama}${d.toko?' – '+d.toko:''}`, margin, y);
-    y += 6;
-
-    if(d.rekomendasi){
-      const rColor = d.rekomendasi==='BSS'?[30,64,175]:[91,33,182];
-      doc.setFillColor(...rColor);
-      doc.setTextColor(255,255,255);
-      doc.setFontSize(9);
-      doc.roundedRect(margin, y, 30, 6, 2, 2, 'F');
-      doc.text(d.rekomendasi, margin+15, y+4.2, {align:'center'});
-      doc.setTextColor(30,30,30);
-      y += 10;
-    }
-
-    // Garis
-    doc.setDrawColor(220,220,220);
-    doc.line(margin, y, pageW-margin, y);
-    y += 5;
-
-    // Fungsi row
-    function row(label, val){
-      if(!val) return;
-      doc.setFontSize(8);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(107,114,128);
-      doc.text(label, margin, y);
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(30,30,30);
-      const lines = doc.splitTextToSize(val, colW-36);
-      doc.text(lines, margin+36, y);
-      y += lines.length*5 + 1;
-      if(y > 270){ doc.addPage(); y = 14; }
-    }
-
-    // Seksi
-    function seksi(judul){
-      y += 2;
-      doc.setFontSize(9);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(123,13,30);
-      doc.text(judul, margin, y);
-      doc.setDrawColor(123,13,30);
-      doc.line(margin, y+1, margin+colW, y+1);
-      doc.setDrawColor(220,220,220);
-      doc.setTextColor(30,30,30);
-      y += 6;
-    }
-
-    seksi('A. IDENTITAS LOKASI');
-    row('Nama Pemilik :', d.nama);
-    row('Nama Toko    :', d.toko);
-    row('Tanggal      :', d.tgl + (d.jam?' '+d.jam:''));
-
-    seksi('B. ALAMAT');
-    row('Jalan/RT/RW  :', d.jalan);
-    row('Kelurahan    :', d.kel);
-    row('Kecamatan    :', d.kec);
-    row('Kabupaten    :', d.kab);
-    row('Provinsi     :', d.prov);
-    row('Google Maps  :', d.gmaps);
-
-    seksi('C. KONDISI');
-    row('Status Lahan :', d.status);
-    row('Rekomendasi  :', d.rekomendasi);
-    row('Catatan      :', d.catatan);
-
-    seksi('D. TIM MARKETING');
-    row('Marketing    :', d.petugas);
-    row('Koordinator  :', d.koordinator);
-    row('Nomer CP     :', d.nocp);
-    row('Email        :', d.email);
-
-    // Foto
-    if(d.fotos && d.fotos.length){
-      seksi('E. FOTO LOKASI');
-      const fotoSize = 55;
-      const gap = 5;
-      const maxPerRow = Math.floor(colW / (fotoSize+gap));
-      let fx = margin;
-      let fy = y;
-
-      for(let fi=0; fi<d.fotos.length; fi++){
-        try{
-          if(fy + fotoSize + 14 > 285){ doc.addPage(); fy = 14; fx = margin; }
-          const imgData = d.fotos[fi];
-          // Gambar via canvas agar kompatibel semua format (JPEG/PNG/WEBP)
-          await new Promise(resolve=>{
-            const img = new Image();
-            img.onload = ()=>{
-              try{
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth||img.width;
-                canvas.height = img.naturalHeight||img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img,0,0);
-                const jpgData = canvas.toDataURL('image/jpeg',0.85);
-                doc.addImage(jpgData,'JPEG',fx,fy,fotoSize,fotoSize);
-              }catch(e2){console.warn('addImage gagal:',e2);}
-              resolve();
-            };
-            img.onerror = ()=>{ console.warn('Gagal load foto ke-'+(fi+1)+' untuk PDF'); resolve(); };
-            img.src = imgData;
-          });
-          doc.setFontSize(7);
-          doc.setTextColor(107,114,128);
-          doc.text(`Foto ${fi+1}`, fx+fotoSize/2, fy+fotoSize+3.5, {align:'center'});
-        }catch(e){console.warn('foto PDF error:',e);}
-        fx += fotoSize + gap;
-        if((fi+1)%maxPerRow===0){ fx=margin; fy+=fotoSize+10; }
-      }
-      y = fy + fotoSize + 12;
-    }
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let p=1; p<=pageCount; p++){
-      doc.setPage(p);
-      doc.setFontSize(7);
-      doc.setTextColor(150,150,150);
-      doc.text(`PT. Gajah Nusantara Delapan - Probolinggo Raya · Dicetak: ${today()} · Hal ${p}/${pageCount}`, pageW/2, 292, {align:'center'});
+  if(d.fotos&&d.fotos.length){
+    seksi('FOTO LOKASI');
+    const fs=50,gap=4,maxR=Math.floor(tw/(fs+gap));
+    let fx=margin,fy=y;
+    for(let i=0;i<d.fotos.length;i++){
+      if(fy+fs+14>285){doc.addPage();fy=14;fx=margin;}
+      try{
+        await new Promise(res=>{
+          const img=new Image();img.crossOrigin='anonymous';
+          img.onload=()=>{try{const c=document.createElement('canvas');c.width=img.naturalWidth||320;c.height=img.naturalHeight||320;c.getContext('2d').drawImage(img,0,0);doc.addImage(c.toDataURL('image/jpeg',.8),'JPEG',fx,fy,fs,fs);}catch(e){}res();};
+          img.onerror=()=>res(); img.src=d.fotos[i];
+        });
+        doc.setFontSize(7);doc.setTextColor(107,114,128);
+        doc.text('Foto '+(i+1),fx+fs/2,fy+fs+3.5,{align:'center'});
+      }catch(e){}
+      fx+=fs+gap;
+      if((i+1)%maxR===0){fx=margin;fy+=fs+10;}
     }
   }
 
-  const namaFile = dataArr.length===1
-    ? `survei-${(dataArr[0].nama||'data').replace(/\s+/g,'-')}-${today()}.pdf`
-    : `survei-cas-pilihan-${today()}.pdf`;
-  doc.save(namaFile);
-  toast('PDF berhasil diunduh!');
+  const pc=doc.internal.getNumberOfPages();
+  for(let p=1;p<=pc;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text(`PT. Gajah Nusantara Delapan · ${today()} · Hal ${p}/${pc}`,pw/2,292,{align:'center'});}
+  doc.save(`survei-${(d.nama||'data').replace(/\s+/g,'-')}-${today()}.pdf`);
+  toast('PDF survei diunduh!');
 }
 
-// ── CLOUD SYNC ──
-async function pushToCloud(data){
-  if(!cfg.apikey||!cfg.binid) return false;
-  try{
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${cfg.binid}`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':cfg.apikey,'X-Bin-Versioning':'false'},
-      body:JSON.stringify(data.map(d=>({...d,fotos:[]})))
-    });
-    return res.ok;
-  }catch(e){return false;}
-}
-
-async function pullFromCloud(){
-  if(!cfg.apikey||!cfg.binid){toast('Konfigurasi belum diisi – buka tab Setup','warn');return;}
-  setSyncBar('Mengambil data dari server...','');
-  try{
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${cfg.binid}/latest`,{
-      headers:{'X-Master-Key':cfg.apikey}
-    });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const json=await res.json();
-    const remote=json.record||[];
-    let merged=0;
-    remote.forEach(r=>{
-      if(deletedIds.includes(r.id)) return; // jangan tarik balik data yg sudah dihapus
-      if(!allData.find(d=>d.id===r.id)){allData.unshift(r);merged++;}
-    });
-    saveLocal(); renderData(); renderStats(); renderExpInfo();
-    // Bersihkan data terhapus dari server agar tidak ditarik petugas lain
-    if(deletedIds.length) pushToCloud(allData);
-    setSyncBar(`Sinkron berhasil – ${merged} data baru ditambahkan`,'ok');
-    setTimeout(()=>document.getElementById('sync-bar').style.display='none',3000);
-  }catch(e){
-    setSyncBar('Gagal terhubung ke server – periksa API Key & Bin ID','err');
+// ═══════════════════════════════
+//  FOTO UPLOAD & KOMPRES
+// ═══════════════════════════════
+let fotoCounter=0;
+async function previewFoto(input){
+  const myRun=++fotoCounter;
+  const files=Array.from(input.files).slice(0,6);
+  if(!files.length) return;
+  fotoUrls=[]; document.getElementById('foto-preview').innerHTML='';
+  toast('Memproses '+files.length+' foto...');
+  for(const f of files){
+    const hasil=await kompresFile(f,1280,.65);
+    if(myRun!==fotoCounter) return;
+    if(hasil){ fotoUrls.push(hasil); const img=document.createElement('img');img.src=hasil;document.getElementById('foto-preview').appendChild(img); }
   }
+  toast(fotoUrls.length+' foto siap');
 }
 
-function syncNow(){pullFromCloud();}
-
-function setSyncBar(msg, type){
-  const b=document.getElementById('sync-bar');
-  b.textContent=msg;
-  b.className='sync-bar'+(type?' '+type:'');
-  b.style.display='flex';
+function kompresFile(file,maxDim,q){
+  return new Promise(r=>{const fr=new FileReader();fr.onload=e=>kompresBase64(e.target.result,maxDim,q).then(r);fr.onerror=()=>r(null);fr.readAsDataURL(file);});
+}
+function kompresBase64(b64,maxDim,q){
+  return new Promise(r=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.naturalWidth,h=img.naturalHeight;
+      if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
+      try{const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);r(c.toDataURL('image/jpeg',q));}catch(e){r(b64);}
+    };
+    img.onerror=()=>r(null); img.src=b64;
+  });
 }
 
-function saveConfig(){
-  cfg.apikey=document.getElementById('cfg-apikey').value.trim();
-  cfg.binid=document.getElementById('cfg-binid').value.trim();
-  localStorage.setItem('cas-cfg',JSON.stringify(cfg));
-  toast('Konfigurasi disimpan!');
+// ═══════════════════════════════
+//  HELPERS
+// ═══════════════════════════════
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  const idx={form:0,data:1,export:2,setup:3}[id];
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  if(id==='data'){renderData();renderStats();}
+  if(id==='export') renderExpInfo();
 }
-
-async function testSync(){
-  if(!cfg.apikey||!cfg.binid){toast('Isi dulu API Key dan Bin ID','err');return;}
-  toast('Menguji koneksi...');
-  const ok=await pushToCloud([{test:true,ts:Date.now()}]);
-  if(ok) toast('Koneksi berhasil! Server siap menerima data.');
-  else toast('Gagal – periksa API Key dan Bin ID','err');
+function resetForm(){
+  ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['status','rekomendasi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fotos').value='';
+  document.getElementById('foto-preview').innerHTML='';
+  fotoUrls=[];
+  const now=new Date();
+  document.getElementById('tgl').value=now.toISOString().slice(0,10);
+  document.getElementById('jam').value=now.toTimeString().slice(0,5);
 }
-
-// ── IMPORT JSON ──
-function importJSON(input){
-  const f=input.files[0];if(!f) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const imported=JSON.parse(e.target.result);
-      if(!Array.isArray(imported)) throw new Error();
-      let n=0;
-      imported.forEach(x=>{if(!allData.find(d=>d.id===x.id)){allData.unshift(x);n++;}});
-      saveLocal(); renderData(); renderStats(); renderExpInfo();
-      toast(`${n} data berhasil diimpor!`);
-    }catch{toast('File JSON tidak valid','err');}
-  };
-  r.readAsText(f);
-}
-
-// ── UTILS ──
-function today(){return new Date().toISOString().slice(0,10);}
+function g(id){return document.getElementById(id)?.value?.trim()||'';}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function dl(content,filename,type){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type}));
-  a.download=filename;a.click();
+function today(){return new Date().toISOString().slice(0,10);}
+function dl(c,fn,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=fn;a.click();}
+function openFoto(src){document.getElementById('overlay-img').src=src;document.getElementById('overlay-foto').classList.add('open');}
+function setBar(msg,type,action){
+  const b=document.getElementById('status-bar');
+  if(action==='hide'){b.style.display='none';return;}
+  b.textContent=msg; b.className='status-bar '+(type||'info'); b.style.display='flex';
 }
-function openModal(src){
-  document.getElementById('modal-img').src=src;
-  document.getElementById('modal').classList.add('open');
-}
-let toastTimer;
+let toastT;
 function toast(msg,type){
   const t=document.getElementById('toast');
   t.textContent=msg;
   t.style.background=type==='err'?'#991B1B':type==='warn'?'#92400E':'#1A1A1A';
-  t.style.opacity='1';
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.style.opacity='0',2800);
+  t.style.opacity='1'; clearTimeout(toastT); toastT=setTimeout(()=>t.style.opacity='0',3000);
 }
 
 init();
