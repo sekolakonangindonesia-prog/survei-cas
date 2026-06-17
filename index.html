@@ -52,10 +52,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-sub{font-size:11px;opacity:.8}
 .header-right{margin-left:auto;display:flex;gap:6px;align-items:center}
 .hbtn{background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
-.fb-badge{font-size:11px;padding:3px 8px;border-radius:4px;white-space:nowrap}
-.fb-ok{background:#D1FAE5;color:#065F46}
-.fb-err{background:#FEE2E2;color:#991B1B}
-.fb-loading{background:#DBEAFE;color:#1E40AF}
 
 /* TABS */
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
@@ -183,7 +179,6 @@ textarea{resize:vertical;min-height:72px}
     <div class="header-sub">PT. Gajah Nusantara Delapan – Probolinggo Raya</div>
   </div>
   <div class="header-right">
-    <span id="fb-badge" class="fb-badge fb-loading">⏳ Init</span>
     <button class="hbtn" onclick="loadData()"><i class="ti ti-refresh"></i> Refresh</button>
   </div>
 </div>
@@ -306,9 +301,9 @@ textarea{resize:vertical;min-height:72px}
     <div style="font-size:13px;color:var(--muted);line-height:1.8">
       1. Isi form survei → klik <b>Simpan & Kirim ke Firebase</b><br>
       2. Buka tab <b>Data</b> untuk lihat semua data<br>
-      3. Klik <b>Approve</b> → isi data KTP pemilik lahan → Simpan Approve<br>
-      4. Setelah approved, tombol berubah jadi <b>Download Kontrak</b><br>
-      5. Klik <b>Download Kontrak</b> untuk cetak PDF SPPL
+      3. Klik <b>Approve</b> → upload foto KTP (opsional) → klik <b>Scan KTP Otomatis (AI)</b><br>
+      4. Periksa data yang terisi → klik <b>Simpan & Approve</b><br>
+      5. Setelah approved, klik <b>Download Kontrak</b> untuk cetak PDF SPPL 1 lembar
     </div>
   </div>
 </div>
@@ -319,7 +314,7 @@ textarea{resize:vertical;min-height:72px}
   <img id="overlay-img" src="" alt="">
 </div>
 
-<!-- ══════ MODAL APPROVE (isi data KTP) ══════ -->
+<!-- ══════ MODAL APPROVE ══════ -->
 <div class="apr-overlay" id="apr-overlay">
   <div class="apr-box">
     <div class="apr-head">
@@ -331,7 +326,7 @@ textarea{resize:vertical;min-height:72px}
     </div>
     <div class="apr-body">
       <!-- Upload KTP -->
-      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Foto KTP</div>
+      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Foto KTP <span style="font-weight:400;text-transform:none;color:var(--muted)">(Opsional – untuk scan otomatis)</span></div>
       <div class="ktp-zone" onclick="document.getElementById('ktp-inp').click()">
         <i class="ti ti-id" style="font-size:28px;color:var(--muted);display:block;margin-bottom:4px"></i>
         <div style="font-size:13px;color:var(--muted)">Upload Foto KTP Pemilik<br><small>Setelah upload, klik tombol Scan AI di bawah</small></div>
@@ -344,6 +339,7 @@ textarea{resize:vertical;min-height:72px}
       <div id="ocr-ok" style="display:none;background:var(--success-bg);color:var(--success);font-size:12px;padding:6px 10px;border-radius:6px;margin-bottom:10px">
         ✅ KTP berhasil dibaca – data telah diisi otomatis. Silakan periksa.
       </div>
+      <div id="ocr-err" style="display:none;background:var(--danger-bg);color:var(--danger);font-size:12px;padding:6px 10px;border-radius:6px;margin-bottom:10px"></div>
 
       <!-- Data identitas -->
       <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">Data Identitas Pemilik Lahan</div>
@@ -353,7 +349,7 @@ textarea{resize:vertical;min-height:72px}
         <div class="field"><label>Tanggal Lahir</label><input type="text" id="a-tgllahir" placeholder="DD-MM-YYYY"></div>
       </div>
       <div class="field"><label>Alamat Lengkap (KTP)</label><textarea id="a-alamat" rows="2" placeholder="Alamat sesuai KTP"></textarea></div>
-      <div class="field"><label>NIK (16 digit)</label><input type="text" id="a-nik" placeholder="3514xxxxxxxxxx"></div>
+      <div class="field"><label>NIK (16 digit)</label><input type="text" id="a-nik" placeholder="3514xxxxxxxxxx" maxlength="16"></div>
       <div class="row2">
         <div class="field"><label>Agama</label><input type="text" id="a-agama" placeholder="Islam"></div>
         <div class="field"><label>Pekerjaan</label><input type="text" id="a-pekerjaan" placeholder="Wiraswasta"></div>
@@ -402,20 +398,19 @@ textarea{resize:vertical;min-height:72px}
 <div class="toast" id="toast" style="opacity:0"></div>
 
 <script>
-// ═══════════════════════════════
-//  STATE
-// ═══════════════════════════════
+// ─── CONSTANTS ───
+const ANTHROPIC_KEY = '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';
+const LOGO_URL = 'https://raw.githubusercontent.com/sekolakonangindonesia-prog/survei-cas/refs/heads/main/logo%20surve.jpg';
+
+// ─── STATE ───
 let allData = [];
 let fotoUrls = [];
 let ktpBase64 = null;
-let activeDocId = null;   // untuk approve / wa
+let activeDocId = null;
 let waActiveId = null;
-
-// ═══════════════════════════════
-//  FIREBASE
-// ═══════════════════════════════
 let db, storage, fb;
 
+// ─── FIREBASE ───
 function waitFB(){
   return new Promise(r=>{
     if(window._firebaseReady){ assign(); r(); return; }
@@ -425,14 +420,12 @@ function waitFB(){
 }
 function assign(){
   db=window._db; storage=window._storage; fb=window._fb;
-  if(db) setFbBadge('ok','☁️ Firebase OK');
-  else setFbBadge('err','❌ Gagal');
-}
-function setFbBadge(type,txt){
-  const el=document.getElementById('fb-badge');
-  el.className='fb-badge fb-'+type; el.textContent=txt;
   const st=document.getElementById('setup-status');
-  if(st) st.textContent = type==='ok'?'Firebase terhubung. Data otomatis tersinkronisasi.':'Gagal terhubung ke Firebase. Periksa koneksi internet.';
+  if(db){
+    if(st) st.textContent='Firebase terhubung. Data otomatis tersinkronisasi.';
+  } else {
+    if(st) st.textContent='Gagal terhubung ke Firebase. Periksa koneksi internet.';
+  }
 }
 
 async function init(){
@@ -440,17 +433,7 @@ async function init(){
   const now=new Date();
   document.getElementById('tgl').value=now.toISOString().slice(0,10);
   document.getElementById('jam').value=now.toTimeString().slice(0,5);
-  autoNomorSurat();
   await loadData();
-}
-
-function autoNomorSurat(){
-  const now=new Date();
-  const bulan=String(now.getMonth()+1).padStart(2,'0');
-  const tahun=now.getFullYear();
-  const urut=String(allData.length+1).padStart(3,'0');
-  const el=document.getElementById('a-nomorsurat');
-  if(el&&!el.value) el.value=`${urut}/SPPL/WAI/${bulan}/${tahun}`;
 }
 
 // ─── LOAD ───
@@ -467,7 +450,6 @@ async function loadData(){
     toast('✅ '+allData.length+' data dimuat');
   }catch(e){
     setBar('Gagal memuat: '+e.message,'err');
-    console.error(e);
   }
 }
 
@@ -488,7 +470,6 @@ async function simpan(){
     status:g('status'), rekomendasi:g('rekomendasi'), catatan:g('catatan'),
     petugas, koordinator:g('koordinator'), nocp:g('nocp'), email:g('email'),
     fotos:[], approved:false,
-    // data approve (kosong dulu)
     a_nama:'',a_nik:'',a_tmplahir:'',a_tgllahir:'',a_alamat:'',a_agama:'',a_pekerjaan:'',
     a_jenishak:'',a_nosertif:'',a_luas:'',a_atasnama:'',a_loktanah:'',a_nomorsurat:'',
     a_ktpUrl:'',a_approvedBy:'',a_approvedAt:''
@@ -500,7 +481,6 @@ async function simpan(){
     const docRef=await addDoc(collection(db,'survei_lokasi'),{...entry,createdAt:serverTimestamp()});
     const docId=docRef.id;
 
-    // Upload foto ke Storage
     if(fotoUrls.length){
       const urls=[];
       for(let i=0;i<fotoUrls.length;i++){
@@ -524,7 +504,6 @@ async function simpan(){
   }catch(err){
     setBar('Gagal simpan: '+err.message,'err');
     toast('Gagal: '+err.message,'err');
-    console.error(err);
   }finally{
     btn.disabled=false; btn.innerHTML='<i class="ti ti-device-floppy"></i> Simpan & Kirim ke Firebase';
   }
@@ -551,13 +530,12 @@ function bukaApprove(docId){
   activeDocId=docId;
   ktpBase64=null;
 
-  // Reset KTP area
   document.getElementById('ktp-prev').style.display='none';
   document.getElementById('btn-scan').style.display='none';
   document.getElementById('ocr-ok').style.display='none';
+  document.getElementById('ocr-err').style.display='none';
   document.getElementById('ktp-inp').value='';
 
-  // Isi data dari data survey (nama & alamat sudah ada)
   document.getElementById('a-nama').value=d.a_nama||d.nama||'';
   document.getElementById('a-tmplahir').value=d.a_tmplahir||'';
   document.getElementById('a-tgllahir').value=d.a_tgllahir||'';
@@ -571,7 +549,6 @@ function bukaApprove(docId){
   document.getElementById('a-atasnama').value=d.a_atasnama||d.nama||'';
   document.getElementById('a-loktanah').value=d.a_loktanah||[d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'';
 
-  // Nomor surat otomatis
   const now=new Date();
   const idx=allData.findIndex(x=>x._docId===docId);
   const urut=String(idx+1).padStart(3,'0');
@@ -586,7 +563,7 @@ function tutupApprove(){
   activeDocId=null; ktpBase64=null;
 }
 
-// KTP Upload
+// ─── KTP UPLOAD ───
 function ktpUpload(input){
   const file=input.files[0]; if(!file) return;
   const r=new FileReader();
@@ -596,25 +573,31 @@ function ktpUpload(input){
     prev.src=ktpBase64; prev.style.display='block';
     document.getElementById('btn-scan').style.display='flex';
     document.getElementById('ocr-ok').style.display='none';
+    document.getElementById('ocr-err').style.display='none';
     toast('KTP terupload. Klik "Scan KTP Otomatis (AI)"');
   };
   r.readAsDataURL(file);
 }
 
-// Scan KTP dengan Claude AI
+// ─── SCAN KTP (Claude AI) ───
 async function scanKTP(){
   if(!ktpBase64){ toast('Upload foto KTP dulu','err'); return; }
   const btn=document.getElementById('btn-scan');
   btn.innerHTML='<span class="spin"></span> Membaca KTP...'; btn.disabled=true;
+  document.getElementById('ocr-err').style.display='none';
 
   try{
-    // Kompres sebelum kirim
     const compressed=await kompresBase64(ktpBase64,1024,0.85);
     const b64=compressed.split(',')[1];
 
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:600,
@@ -623,7 +606,7 @@ async function scanKTP(){
           content:[
             {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
             {type:'text',text:`Ini foto KTP Indonesia. Baca semua data yang terlihat.
-Kembalikan HANYA JSON murni (tanpa markdown backtick apapun):
+Kembalikan HANYA JSON murni tanpa markdown backtick apapun:
 {"nama":"","nik":"","tempat_lahir":"","tanggal_lahir":"","jenis_kelamin":"","alamat":"","rt_rw":"","kel_desa":"","kecamatan":"","agama":"","pekerjaan":""}
 Field yang tidak terbaca biarkan kosong "".`}
           ]
@@ -632,20 +615,18 @@ Field yang tidak terbaca biarkan kosong "".`}
     });
 
     const data=await res.json();
-    if(!res.ok) throw new Error(data.error?.message||'API '+res.status);
+    if(!res.ok) throw new Error(data.error?.message||'API error '+res.status);
 
     const rawText=data.content?.find(c=>c.type==='text')?.text||'';
     let ktp;
     try{
       ktp=JSON.parse(rawText.replace(/```[\s\S]*?```/g,'').replace(/```/g,'').trim());
     }catch(e2){
-      // Coba extract JSON dari teks
       const match=rawText.match(/\{[\s\S]*\}/);
       if(match) ktp=JSON.parse(match[0]);
       else throw new Error('Format respons tidak valid. Coba foto lebih jelas.');
     }
 
-    // Isi form
     if(ktp.nama) document.getElementById('a-nama').value=ktp.nama;
     if(ktp.nik) document.getElementById('a-nik').value=ktp.nik;
     if(ktp.tempat_lahir) document.getElementById('a-tmplahir').value=ktp.tempat_lahir;
@@ -661,13 +642,14 @@ Field yang tidak terbaca biarkan kosong "".`}
     toast('✅ KTP berhasil dibaca otomatis!');
 
   }catch(err){
-    toast('Gagal scan: '+err.message,'err');
+    const errEl=document.getElementById('ocr-err');
+    errEl.textContent='❌ Gagal scan: '+err.message+'. Isi manual atau coba foto lebih jelas.';
+    errEl.style.display='block';
     btn.innerHTML='<i class="ti ti-scan"></i> Scan KTP Otomatis (AI)'; btn.disabled=false;
-    console.error(err);
   }
 }
 
-// Simpan Approve ke Firebase
+// ─── SIMPAN APPROVE (tanpa upload KTP dulu, lebih cepat) ───
 async function doApprove(){
   if(!activeDocId){ toast('Tidak ada data aktif','err'); return; }
   const nama=document.getElementById('a-nama').value.trim();
@@ -679,16 +661,6 @@ async function doApprove(){
   try{
     const now=new Date();
     const approvedAt=now.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-
-    // Upload KTP foto ke Storage jika ada
-    let ktpUrl='';
-    if(ktpBase64){
-      setBar('Mengupload foto KTP...','info');
-      const {ref,uploadString,getDownloadURL}=fb;
-      const r=ref(storage,`survei/${activeDocId}/ktp.jpg`);
-      await uploadString(r,ktpBase64,'data_url');
-      ktpUrl=await getDownloadURL(r);
-    }
 
     const updateData={
       approved:true,
@@ -705,35 +677,47 @@ async function doApprove(){
       a_atasnama:document.getElementById('a-atasnama').value.trim(),
       a_loktanah:document.getElementById('a-loktanah').value.trim(),
       a_nomorsurat:document.getElementById('a-nomorsurat').value.trim(),
-      a_ktpUrl:ktpUrl,
+      a_ktpUrl:'',
       a_approvedBy:g('petugas')||'Koordinator',
       a_approvedAt:approvedAt
     };
 
+    // Upload KTP foto di background jika ada (tidak blocking)
+    if(ktpBase64){
+      (async()=>{
+        try{
+          const {ref,uploadString,getDownloadURL,doc,updateDoc}=fb;
+          const r=ref(storage,`survei/${activeDocId}/ktp.jpg`);
+          await uploadString(r,ktpBase64,'data_url');
+          const url=await getDownloadURL(r);
+          await updateDoc(doc(db,'survei_lokasi',activeDocId),{a_ktpUrl:url});
+          const idx=allData.findIndex(x=>x._docId===activeDocId);
+          if(idx>=0) allData[idx].a_ktpUrl=url;
+        }catch(e){ console.warn('Upload KTP background gagal:',e); }
+      })();
+    }
+
     const {doc,updateDoc}=fb;
     await updateDoc(doc(db,'survei_lokasi',activeDocId),updateData);
 
-    // Update local
     const idx=allData.findIndex(x=>x._docId===activeDocId);
     if(idx>=0) allData[idx]={...allData[idx],...updateData};
 
     renderData(); renderStats();
-    setBar('✅ Data approve tersimpan','ok');
+    setBar('✅ Approve berhasil!','ok');
     setTimeout(()=>setBar('','','hide'),3000);
     toast('✅ Approve berhasil! Kontrak siap didownload.');
     tutupApprove();
 
   }catch(err){
-    setBar('Gagal approve: '+err.message,'err');
     toast('Gagal: '+err.message,'err');
-    console.error(err);
   }finally{
     btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Simpan & Approve';
   }
 }
 
 // ═══════════════════════════════
-//  DOWNLOAD KONTRAK PDF
+//  DOWNLOAD KONTRAK PDF – 1 LEMBAR
 // ═══════════════════════════════
 async function downloadKontrak(docId){
   const d=allData.find(x=>x._docId===docId);
@@ -746,141 +730,173 @@ async function downloadKontrak(docId){
   const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
   const ph=doc.internal.pageSize.getHeight();
-  const ml=25, mr=25;
+  const ml=20, mr=20;
   const tw=pw-ml-mr;
-  let y=18;
+  let y=10;
 
-  // ── LOGO & HEADER ──
-  // Lingkaran logo
-  doc.setFillColor(123,13,30);
-  doc.circle(pw/2, y+8, 10, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(14); doc.setFont('helvetica','bold');
-  doc.text('N', pw/2, y+12, {align:'center'});
-  y+=22;
+  // ── LOGO ──
+  try{
+    const logoData = await loadImageAsBase64(LOGO_URL);
+    // Logo center, ukuran proporsional
+    const logoW=38, logoH=22;
+    doc.addImage(logoData,'JPEG',(pw-logoW)/2, y, logoW, logoH);
+    y+=logoH+4;
+  }catch(e){
+    // Fallback teks jika logo gagal
+    doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.setTextColor(123,13,30);
+    doc.text('WIRA ARTHA INVESTAMA', pw/2, y+8, {align:'center'});
+    y+=14;
+  }
 
-  doc.setFontSize(15); doc.setFont('helvetica','bold');
-  doc.setTextColor(123,13,30);
+  // Nama perusahaan bold
+  doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.setTextColor(30,30,30);
   doc.text('WIRA ARTHA INVESTAMA', pw/2, y, {align:'center'});
   y+=5;
 
-  // Garis bawah nama perusahaan
-  doc.setDrawColor(123,13,30); doc.setLineWidth(0.6);
+  // Garis
+  doc.setDrawColor(30,30,30); doc.setLineWidth(0.8);
   doc.line(ml, y, pw-mr, y);
-  y+=8;
-
-  // Judul surat
-  doc.setFontSize(12); doc.setFont('helvetica','bold');
-  doc.setTextColor(20,20,20);
-  doc.text('SURAT PERSETUJUAN PEMILIK LAHAN', pw/2, y, {align:'center'});
+  doc.setLineWidth(0.3);
+  doc.line(ml, y+1.2, pw-mr, y+1.2);
   y+=6;
-  doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(100,100,100);
-  doc.text('Nomor: '+(d.a_nomorsurat||'-'), pw/2, y, {align:'center'});
-  y+=10;
 
-  // Intro
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(30,30,30);
-  const introTxt='Yang bertanda tangan di bawah ini (selanjutnya disebut sebagai "Pemilik Lahan"), menerangkan sebagai berikut:';
-  const introLines=doc.splitTextToSize(introTxt,tw);
-  doc.text(introLines,ml,y); y+=introLines.length*5.5+5;
+  // Judul
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
+  doc.text('SURAT PERSETUJUAN PEMILIK LAHAN', pw/2, y, {align:'center'});
+  y+=5;
+  doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(60,60,60);
+  doc.text('Nomor: '+(d.a_nomorsurat||'___/SPPL/___/___/2026'), pw/2, y, {align:'center'});
+  y+=6;
+
+  // Intro bold
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(20,20,20);
+  const introA='Yang bertanda tangan di bawah ini (selanjutnya disebut sebagai ';
+  const introB='"Pemilik Lahan"';
+  const introC='), menerangkan sebagai berikut:';
+  doc.text(introA+introB+introC, ml, y, {maxWidth:tw});
+  y+=5;
 
   // ── TABEL DATA PEMILIK ──
   const rows=[
-    ['Nama', d.a_nama||'-'],
-    ['Tempat, Tanggal Lahir', [d.a_tmplahir,d.a_tgllahir].filter(Boolean).join(', ')||'-'],
-    ['Alamat', d.a_alamat||'-'],
-    ['Nomor Induk Kependudukan (NIK)', d.a_nik||'-'],
-    ['Jenis Hak & Nomor Sertipikat', [d.a_jenishak,d.a_nosertif].filter(Boolean).join(' – ')||'-'],
-    ['Luas Bidang', d.a_luas||'-'],
-    ['Atas Nama Sertipikat', d.a_atasnama||'-'],
-    ['Alamat Lokasi Tanah', d.a_loktanah||'-'],
+    ['Nama', d.a_nama||''],
+    ['Tempat, Tanggal Lahir', [d.a_tmplahir,d.a_tgllahir].filter(Boolean).join(', ')||''],
+    ['Alamat', d.a_alamat||''],
+    ['Nomor Induk Kependudukan (NIK)', d.a_nik||''],
+    ['Jenis Hak & Nomor Sertipikat', [d.a_jenishak,d.a_nosertif].filter(Boolean).join(' – ')||''],
+    ['Luas Bidang', d.a_luas||''],
+    ['Atas Nama Sertipikat', d.a_atasnama||''],
+    ['Alamat Lokasi Tanah', d.a_loktanah||''],
   ];
 
-  const c1=55, c2=tw-c1;
-  doc.setFontSize(9);
+  const c1=58, c2=tw-c1;
+  doc.setFontSize(8.5);
 
-  rows.forEach((r,i)=>{
-    const valLines=doc.splitTextToSize(r[1],c2-4);
-    const rh=Math.max(9,valLines.length*5+4);
-    if(y+rh>265){doc.addPage();y=18;}
+  // Header tabel
+  doc.setFillColor(230,230,230);
+  doc.rect(ml, y, c1, 6, 'F');
+  doc.rect(ml+c1, y, c2, 6, 'F');
+  doc.setDrawColor(150,150,150); doc.setLineWidth(0.3);
+  doc.rect(ml, y, tw, 6, 'S');
+  doc.rect(ml, y, c1, 6, 'S');
+  doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
+  doc.text('Uraian', ml+2, y+4);
+  doc.text('Keterangan', ml+c1+2, y+4);
+  y+=6;
 
-    // Alternating rows
-    if(i%2===0){doc.setFillColor(248,249,250);doc.rect(ml,y,tw,rh,'F');}
-    doc.setDrawColor(220,220,220); doc.setLineWidth(0.3);
-    doc.rect(ml,y,tw,rh,'S');
-    doc.rect(ml,y,c1,rh,'S');
+  rows.forEach((r)=>{
+    const valLines=doc.splitTextToSize(r[1]||'',c2-4);
+    const rh=Math.max(7, valLines.length*4.5+2.5);
 
-    doc.setFont('helvetica','bold'); doc.setTextColor(50,50,50);
+    doc.setDrawColor(150,150,150); doc.setLineWidth(0.3);
+    doc.rect(ml, y, tw, rh, 'S');
+    doc.rect(ml, y, c1, rh, 'S');
+
+    doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
     const lblLines=doc.splitTextToSize(r[0],c1-4);
-    doc.text(lblLines,ml+2,y+4.5);
+    doc.text(lblLines, ml+2, y+4);
 
-    doc.setFont('helvetica','normal'); doc.setTextColor(20,20,20);
-    doc.text(valLines,ml+c1+2,y+4.5);
+    doc.setFont('helvetica','normal');
+    doc.text(valLines, ml+c1+2, y+4);
     y+=rh;
   });
-  y+=8;
+  y+=5;
 
-  // ── BUTIR-BUTIR ──
+  // ── BUTIR 1-6 (rapat, tanpa jarak) ──
   const butir=[
     'Pemilik Lahan adalah pemilik sah atas bidang tanah sebagaimana data pada tabel di atas.',
-    'Pemilik Lahan dengan ini memberikan izin dan persetujuan kepada:\n\nNama Pihak (Individu/PT): PT. WIRA ARTHA INVESTAMA\nAlamat: Jl. Sriwijaya I No. 35 Selong Kb. Baru, Jakarta Selatan\n(selanjutnya disebut sebagai "Penyewa").',
-    'Pemilik Lahan memberikan izin kepada Penyewa untuk menyewakan kembali (sublease) sebagian atau seluruh lahan milik Pemilik Lahan tersebut kepada PT Vgreen Global Charging Station Investment Indonesia ("VGreen"), untuk digunakan sebagai lokasi Stasiun Pengisian Kendaraan Listrik (SPKL) luas 3m²×6m² dan Baterai Swap Station (BSS) luas 1m²×1m² beserta fasilitas penunjangnya.',
+    'Pemilik Lahan dengan ini memberikan izin dan persetujuan kepada:\nNama Pihak (Individu/PT): PT.WIRA ARTHA INVESTAMA\nAlamat: Jl.Sriwijaya I no.35 Selong Kb. Baru. Jakarta Selatan\n(selanjutnya disebut sebagai "Penyewa").',
+    'Pemilik Lahan memberikan izin kepada Penyewa untuk menyewakan kembali (sublease) sebagian atau seluruh lahan milik Pemilik Lahan tersebut kepada PT Vgreen Global Charging Station Investment Indonesia ("VGreen"), untuk digunakan sebagai lokasi Stasiun Pengisian Kendaraan Listrik (SPKL) luas 3m\u00b2x6m\u00b2 dan Baterai Swap Station (BSS) luas 1m\u00b2x1m\u00b2 beserta fasilitas penunjangnya.',
     'Pemilik Lahan mengetahui dan menyetujui bahwa perjanjian sewa menyewa akan dilaksanakan antara Penyewa dan VGreen.',
     'Pemilik Lahan tidak akan mengajukan keberatan, tuntutan, atau klaim dalam bentuk apa pun terhadap pelaksanaan perjanjian tersebut sepanjang dilaksanakan sesuai dengan peraturan perundang-undangan yang berlaku di Republik Indonesia.',
     'Surat Persetujuan ini dibuat dan ditandatangani secara sadar, tanpa paksaan dari pihak mana pun, untuk digunakan sebagaimana mestinya.',
   ];
 
-  doc.setFontSize(9.5); doc.setFont('helvetica','normal'); doc.setTextColor(25,25,25);
+  doc.setFontSize(9); doc.setTextColor(20,20,20);
   butir.forEach((b,i)=>{
-    if(y>245){doc.addPage();y=18;}
-    doc.setFont('helvetica','bold');
-    doc.text(String(i+1)+'.', ml, y);
     doc.setFont('helvetica','normal');
-    const lines=doc.splitTextToSize(b,tw-8);
-    doc.text(lines,ml+7,y);
-    y+=lines.length*5.5+2;
+    // Nomor + teks dalam satu baris
+    const lines=doc.splitTextToSize(b, tw-8);
+    doc.text(String(i+1)+'.', ml, y);
+    doc.text(lines, ml+7, y);
+    y+=lines.length*4.3+0.8; // rapat, jarak minimal
   });
 
   // ── TANDA TANGAN ──
-  y+=10;
-  if(y>235){doc.addPage();y=18;}
+  y+=6;
   const tgl=new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-  doc.setFontSize(9.5); doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(20,20,20);
   doc.text('Jakarta, '+tgl, pw-mr, y, {align:'right'});
-  y+=8;
+  y+=6;
 
-  const cL=ml, cR=pw/2+10, sigW=(tw/2)-5;
+  const sigW=65;
+  const cL=ml+5;
+  const cR=pw-mr-sigW-5;
+
   doc.text('Pemilik Lahan', cL+sigW/2, y, {align:'center'});
   doc.text('Penyewa (Individu/PT)', cR+sigW/2, y, {align:'center'});
-  y+=30;
+  y+=22;
 
-  doc.setDrawColor(80,80,80); doc.setLineWidth(0.4);
-  doc.line(cL,y,cL+sigW,y);
-  doc.line(cR,y,cR+sigW,y);
-  y+=5;
+  doc.setDrawColor(60,60,60); doc.setLineWidth(0.4);
+  doc.line(cL, y, cL+sigW, y);
+  doc.line(cR, y, cR+sigW, y);
+  y+=4;
 
   doc.setFontSize(9);
-  doc.text('('+( d.a_nama||'...........................')+')' , cL+sigW/2, y, {align:'center'});
+  doc.text('('+(d.a_nama||'_____________________')+')', cL+sigW/2, y, {align:'center'});
   doc.text('(______________________________)', cR+sigW/2, y, {align:'center'});
-  y+=5;
+  y+=4;
   doc.setFont('helvetica','bold');
   doc.text('SUGIMAN', cR+sigW/2, y, {align:'center'});
   y+=4; doc.setFont('helvetica','normal');
   doc.text('Direktur Utama', cR+sigW/2, y, {align:'center'});
 
-  // ── FOOTER ──
-  const pages=doc.internal.getNumberOfPages();
-  for(let p=1;p<=pages;p++){
-    doc.setPage(p);
-    doc.setDrawColor(123,13,30); doc.setLineWidth(0.5);
-    doc.line(ml,ph-14,pw-mr,ph-14);
-    doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(123,13,30);
-    doc.text('Equity Tower Lvl 22, Sudirman Central Business District Lot.9, Jakarta Selatan', pw/2, ph-9, {align:'center'});
-  }
+  // ── FOOTER MERAH ──
+  doc.setDrawColor(123,13,30); doc.setLineWidth(0.5);
+  doc.line(ml, ph-12, pw-mr, ph-12);
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(123,13,30);
+  doc.text('Equity Tower Lvl 22, Sudirman Central Business District Lot.9. Jakarta Selatan', pw/2, ph-7, {align:'center'});
 
   const fn=`SPPL_${(d.a_nama||'Pemilik').replace(/\s+/g,'-')}_${today()}.pdf`;
   doc.save(fn);
   toast('📄 PDF Kontrak diunduh!');
+}
+
+// ─── Load image as base64 ───
+function loadImageAsBase64(url){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      c.width=img.naturalWidth; c.height=img.naturalHeight;
+      c.getContext('2d').drawImage(img,0,0);
+      resolve(c.toDataURL('image/jpeg',0.92));
+    };
+    img.onerror=()=>reject(new Error('Gagal load logo'));
+    img.src=url+'?t='+Date.now();
+  });
 }
 
 // ═══════════════════════════════
@@ -946,7 +962,6 @@ function renderExpInfo(){
   const el=document.getElementById('exp-info');
   if(el) el.textContent=allData.length+' data tersimpan di Firebase';
 }
-
 function rekTag(r){
   if(!r) return '';
   if(r.includes('BSS')&&r.includes('SPKL')) return `<span class="tag tag-green">BSS+SPKL</span>`;
@@ -963,7 +978,7 @@ function kirimWA(docId){
   waActiveId=docId;
   if(d.fotos&&d.fotos.length){
     const panel=document.getElementById('wa-panel');
-    document.getElementById('wa-info').innerHTML=`Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>1️⃣ Klik <b>Simpan Foto</b> → 2️⃣ Klik <b>Buka WhatsApp</b> → 3️⃣ Di WA, lampirkan foto dari galeri`;
+    document.getElementById('wa-info').innerHTML=`Ada <b>${d.fotos.length} foto</b> untuk lokasi ini.<br>1️⃣ Klik <b>Simpan Foto</b> → 2️⃣ Klik <b>Buka WhatsApp</b>`;
     const grid=document.getElementById('wa-foto-grid');
     grid.innerHTML=d.fotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px">`).join('');
     document.getElementById('wa-save-btn').textContent='📥 Simpan Foto ('+d.fotos.length+')';
