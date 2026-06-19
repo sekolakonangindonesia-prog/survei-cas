@@ -747,13 +747,44 @@ async function downloadPDFSurvei(docId){
   // Header merah
   doc.setFillColor(123,13,30);doc.rect(0,0,pw,20,'F');
   doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
-  doc.text('Survei 1000 Lokasi Strategis BSS & SPKL – Probolinggo Raya',margin,12);
+  doc.text('Survei 1000 Lokasi Strategis BSS & SPKL – Probolinggo Raya',margin,13);
   doc.setFontSize(8);doc.setFont('helvetica','normal');
   doc.text('PT. Gajah Nusantara Delapan',margin,18);
   y=26;
 
-  doc.setTextColor(30,30,30);doc.setFontSize(13);doc.setFont('helvetica','bold');
-  doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y);y+=8;
+  doc.setTextColor(30,30,30);doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y);y+=6;
+
+  if(d.rekomendasi){
+      const rColor = d.rekomendasi==='BSS'?[30,64,175]:[91,33,182];
+      doc.setFillColor(...rColor);
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(9);
+      doc.roundedRect(margin, y, 30, 6, 2, 2, 'F');
+      doc.text(d.rekomendasi, margin+15, y+4.2, {align:'center'});
+      doc.setTextColor(30,30,30);
+      y += 10;
+    }
+
+      // Garis
+    doc.setDrawColor(220,220,220);
+    doc.line(margin, y, pageW-margin, y);
+    y += 5;
+
+    // Fungsi row
+    function row(label, val){
+      if(!val) return;
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(107,114,128);
+      doc.text(label, margin, y);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(30,30,30);
+      const lines = doc.splitTextToSize(val, colW-36);
+      doc.text(lines, margin+36, y);
+      y += lines.length*5 + 1;
+      if(y > 270){ doc.addPage(); y = 14; }
+    }
 
   function seksi(t){y+=2;doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);doc.text(t,margin,y);doc.setDrawColor(123,13,30);doc.line(margin,y+1,margin+tw,y+1);doc.setTextColor(30,30,30);y+=6;}
   function row(l,v){if(!v)return;doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(107,114,128);doc.text(l,margin,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(v,tw-38);doc.text(ls,margin+38,y);y+=ls.length*5+1;if(y>270){doc.addPage();y=14;}}
@@ -894,7 +925,7 @@ function kirimWA(docId){
 function lanjutBukaWA(){
   document.getElementById('wa-panel').classList.remove('open');
   const d=allData.find(x=>x._docId===waActiveId);if(!d)return;
-  const teks=['🔌 *SURVEI LOKASI CAS*','━━━━━━━━━━━━━━━━━━━',
+  const teks=['🔌 *SURVEI LOKASI PROBOLINGGO*','━━━━━━━━━━━━━━━━━━━',
     '👤 *Pemilik:* '+d.nama+(d.toko?' / '+d.toko:''),
     '📍 *Alamat:* '+([d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'),
     d.gmaps?'🗺️ *Maps:* '+d.gmaps:'',
