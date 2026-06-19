@@ -752,18 +752,34 @@ async function downloadPDFSurvei(docId){
   doc.text('PT. Gajah Nusantara Delapan',margin,18);
   y=26;
 
-  doc.setTextColor(30,30,30);doc.setFontSize(13);doc.setFont('helvetica','bold');
+  doc.setTextColor(30,30,30);doc.setFontSize(14);doc.setFont('helvetica','bold');
   doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y);y+=8;
+
+      if(d.rekomendasi){
+      const rColor = d.rekomendasi==='BSS'?[30,64,175]:[91,33,182];
+      doc.setFillColor(...rColor);
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(9);
+      doc.roundedRect(margin, y, 30, 6, 2, 2, 'F');
+      doc.text(d.rekomendasi, margin+15, y+4.2, {align:'center'});
+      doc.setTextColor(30,30,30);
+      y += 10;
+    }
 
   function seksi(t){y+=2;doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);doc.text(t,margin,y);doc.setDrawColor(123,13,30);doc.line(margin,y+1,margin+tw,y+1);doc.setTextColor(30,30,30);y+=6;}
   function row(l,v){if(!v)return;doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(107,114,128);doc.text(l,margin,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(v,tw-38);doc.text(ls,margin+38,y);y+=ls.length*5+1;if(y>270){doc.addPage();y=14;}}
 
-  seksi('LOKASI');
+  seksi('A. IDENTITAS LOKASI');
+    row('Nama Pemilik :', d.nama);
+    row('Nama Toko    :', d.toko);
+    row('Tanggal      :', d.tgl + (d.jam?' '+d.jam:''));
+  
+  seksi('B. ALAMAT');
   row('Jalan/RT/RW:',d.jalan);row('Kelurahan:',d.kel);row('Kecamatan:',d.kec);row('Kabupaten:',d.kab);row('Maps:',d.gmaps);
-  seksi('KONDISI');
+  seksi('C. KONDISI');
   row('Status Lahan:',d.status);row('Rekomendasi:',d.rekomendasi);row('Catatan:',d.catatan);
   seksi('TIM');
-  row('Marketing:',d.petugas);row('Koordinator:',d.koordinator);row('Nomer CP:',d.nocp);row('Tanggal:',d.tgl+' '+d.jam);
+  row('Marketing:',d.petugas);row('Koordinator:',d.koordinator);row('Nomer CP:',d.nocp);row('Tanggal:',d.tgl+' '+d.jam); row('Email        :', d.email);
 
   // Foto langsung dari base64 — tidak perlu CORS, tidak perlu proxy
   if(d.fotos&&d.fotos.length){
