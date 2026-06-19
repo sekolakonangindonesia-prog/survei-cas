@@ -649,9 +649,7 @@ async function downloadKontrak(docId){
   // Header
   doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(30,30,30);
   doc.text('WIRA ARTHA INVESTAMA',pw/2,y,{align:'center'});y+=5;
-  doc.setDrawColor(30,30,30);doc.setLineWidth(0.8);doc.line(ml,y,pw-mr,y);
-  doc.setLineWidth(0.3);doc.line(ml,y+1.2,pw-mr,y+1.2);y+=6;
-
+  
   doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);
   doc.text('SURAT PERSETUJUAN PEMILIK LAHAN',pw/2,y,{align:'center'});y+=5;
   doc.setFontSize(9);doc.setFont('helvetica','italic');doc.setTextColor(60,60,60);
@@ -716,12 +714,10 @@ async function downloadKontrak(docId){
   const sigW=62,cL=ml+5,cR=pw-mr-sigW-5;
   doc.text('Pemilik Lahan',cL+sigW/2,y,{align:'center'});
   doc.text('Penyewa (Individu/PT)',cR+sigW/2,y,{align:'center'});y+=20;
-  doc.setDrawColor(60,60,60);doc.setLineWidth(0.4);
-  doc.line(cL,y,cL+sigW,y);doc.line(cR,y,cR+sigW,y);y+=4;
+  doc.setDrawColor(60,60,60);doc.setLineWidth(0.4);  
   doc.setFontSize(9);
   doc.text('('+(d.a_nama||'_____________________')+')',cL+sigW/2,y,{align:'center'});
-  doc.text('(______________________________)',cR+sigW/2,y,{align:'center'});y+=4;
-  doc.setFont('helvetica','bold');doc.text('SUGIMAN',cR+sigW/2,y,{align:'center'});y+=4;
+  doc.text('SUGIMAN',cR+sigW/2,y,{align:'center'});y+=4;
   doc.setFont('helvetica','normal');doc.text('Direktur Utama',cR+sigW/2,y,{align:'center'});
 
   // Footer
