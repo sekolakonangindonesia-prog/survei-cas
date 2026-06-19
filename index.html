@@ -717,7 +717,7 @@ async function downloadKontrak(docId){
   doc.setDrawColor(60,60,60);doc.setLineWidth(0.4);  
   doc.setFontSize(9);
   doc.text('('+(d.a_nama||'_____________________')+')',cL+sigW/2,y,{align:'center'});
-  doc.text('SUGIMAN',cR+sigW/2,y,{align:'center'});y+=4;
+  doc.text('('+('SUGIMAN'')+')',cR+sigW/2,y,{align:'center'});y+=4;
   doc.setFont('helvetica','normal');doc.text('Direktur Utama',cR+sigW/2,y,{align:'center'});
 
   // Footer
