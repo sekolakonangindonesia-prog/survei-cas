@@ -10,7 +10,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBmuW0Nd9B7EDQrHW-NW_x7yhI774GF7Yk",
@@ -24,7 +24,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 window._db = getFirestore(app);
 window._storage = getStorage(app);
-window._fb = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, ref, uploadBytes, getDownloadURL };
+window._fb = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, ref, uploadString, getDownloadURL };
 window._firebaseReady = true;
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
@@ -47,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header-title{font-size:16px;font-weight:600;line-height:1.2}
 .header-sub{font-size:11px;opacity:.8}
 .header-right{margin-left:auto;display:flex;gap:6px;align-items:center}
-.hbtn{background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.hbtn{background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
 .tab{flex:1;min-width:75px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
 .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
@@ -81,6 +81,7 @@ textarea{resize:vertical;min-height:72px}
 .card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:10px}
 .card-name{font-size:15px;font-weight:600;margin-bottom:2px}
 .card-addr{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;align-items:flex-start;gap:4px}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 .tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
 .tag-green{background:var(--success-bg);color:var(--success)}
 .tag-blue{background:var(--info-bg);color:var(--info)}
@@ -108,17 +109,10 @@ textarea{resize:vertical;min-height:72px}
 .status-bar.err{background:var(--danger-bg);color:var(--danger)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid #fff4;border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-/* Upload progress */
-.upload-progress{background:#f3f4f6;border-radius:var(--radius);padding:12px;margin-top:8px;display:none}
-.progress-bar-wrap{background:#e5e7eb;border-radius:4px;height:8px;margin:6px 0}
-.progress-bar{background:var(--primary);height:8px;border-radius:4px;transition:width .3s;width:0%}
-.progress-label{font-size:12px;color:var(--muted)}
-/* MODAL FOTO */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;align-items:center;justify-content:center}
 .overlay.open{display:flex}
 .overlay img{max-width:95vw;max-height:90vh;border-radius:var(--radius);object-fit:contain}
 .overlay-close{position:fixed;top:16px;right:16px;background:#fff2;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-/* APPROVE MODAL */
 .apr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9000;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto}
 .apr-overlay.open{display:flex}
 .apr-box{background:#fff;border-radius:var(--radius);width:100%;max-width:600px;margin:auto}
@@ -126,7 +120,13 @@ textarea{resize:vertical;min-height:72px}
 .apr-body{padding:16px}
 .apr-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
 .apr-foot .btn{flex:1;justify-content:center;min-width:120px}
-/* WA PANEL */
+
+/* Upload progress */
+.upload-progress{background:var(--info-bg);border:1px solid #BFDBFE;border-radius:var(--radius-sm);padding:10px 14px;margin-top:8px;display:none}
+.upload-progress-bar{height:6px;background:#E5E7EB;border-radius:3px;margin-top:6px;overflow:hidden}
+.upload-progress-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .3s;width:0%}
+.upload-progress-text{font-size:12px;color:var(--info);font-weight:500}
+
 .wa-panel{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9100;display:none;align-items:flex-end;justify-content:center;padding:16px}
 .wa-panel.open{display:flex}
 .wa-box{background:#fff;border-radius:16px 16px 8px 8px;width:100%;max-width:480px;padding:20px}
@@ -178,27 +178,35 @@ textarea{resize:vertical;min-height:72px}
   <div class="section-label">C. Kondisi Lokasi</div>
   <div class="row2">
     <div class="field"><label>Status Lahan</label>
-      <select id="status"><option value="">-- Pilih --</option><option>Milik Sendiri</option><option>Sewa</option><option>Negeri / Pemerintah</option><option>Lainnya</option></select>
+      <select id="status">
+        <option value="">-- Pilih --</option>
+        <option>Milik Sendiri</option><option>Sewa</option>
+        <option>Negeri / Pemerintah</option><option>Lainnya</option>
+      </select>
     </div>
     <div class="field"><label>Rekomendasi</label>
-      <select id="rekomendasi"><option value="">-- Pilih --</option><option>BSS</option><option>SPKL</option><option>BSS + SPKL</option></select>
+      <select id="rekomendasi">
+        <option value="">-- Pilih --</option>
+        <option>BSS</option><option>SPKL</option><option>BSS + SPKL</option>
+      </select>
     </div>
   </div>
-  <div class="field"><label>Catatan Tambahan</label><textarea id="catatan" placeholder="Kondisi jalan, kendala akses, potensi khusus, dll..."></textarea></div>
-
-  <div class="section-label">D. Foto Lokasi <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(min 4 foto, maks 8)</span></div>
+  <div class="field"><label>Catatan Tambahan</label>
+    <textarea id="catatan" placeholder="Kondisi jalan, kendala akses, potensi khusus, dll..."></textarea>
+  </div>
+  <div class="section-label">D. Foto Lokasi <span style="font-weight:400;color:var(--muted);font-size:10px">(min 4 foto, maks 8)</span></div>
   <div class="foto-upload" onclick="document.getElementById('fotos').click()">
     <i class="ti ti-camera" style="font-size:28px;color:var(--muted);display:block;margin-bottom:6px"></i>
-    <div style="font-size:13px;color:var(--muted)">Tap untuk pilih foto<br><small>Tampak depan · Kios · Titik CAS · Screenshot GPS</small></div>
+    <div style="font-size:13px;color:var(--muted)">Tap untuk upload foto<br><small>Tampak depan · Kios · Titik CAS · Screenshot GPS</small></div>
     <input type="file" id="fotos" accept="image/*" multiple onchange="previewFoto(this)">
   </div>
-  <div id="foto-status" style="font-size:12px;color:var(--muted);margin-bottom:4px"></div>
   <div class="foto-grid" id="foto-preview"></div>
-  <!-- Progress upload -->
+  <div id="foto-count" style="font-size:12px;color:var(--muted);margin-top:4px;text-align:center"></div>
+
+  <!-- Progress bar upload -->
   <div class="upload-progress" id="upload-progress">
-    <div class="progress-label" id="progress-label">Mengupload foto...</div>
-    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-    <div style="font-size:11px;color:var(--muted)" id="progress-detail"></div>
+    <div class="upload-progress-text" id="upload-progress-text">Mengupload foto...</div>
+    <div class="upload-progress-bar"><div class="upload-progress-fill" id="upload-progress-fill"></div></div>
   </div>
 
   <div class="section-label">E. Data Tim</div>
@@ -221,7 +229,10 @@ textarea{resize:vertical;min-height:72px}
   <div class="stats" id="stats"></div>
   <div class="search-bar">
     <input type="text" id="search-q" placeholder="Cari nama, desa, kecamatan..." oninput="renderData()">
-    <select id="filter-rek" onchange="renderData()"><option value="">Semua</option><option>BSS</option><option>SPKL</option><option>BSS + SPKL</option></select>
+    <select id="filter-rek" onchange="renderData()">
+      <option value="">Semua</option>
+      <option>BSS</option><option>SPKL</option><option>BSS + SPKL</option>
+    </select>
   </div>
   <div id="data-list"></div>
 </div>
@@ -254,11 +265,11 @@ textarea{resize:vertical;min-height:72px}
   <div class="card" style="margin-top:12px">
     <h3 style="font-size:15px;font-weight:600;margin-bottom:8px"><i class="ti ti-info-circle" style="color:var(--primary)"></i> Cara Pakai</h3>
     <div style="font-size:13px;color:var(--muted);line-height:1.8">
-      1. Isi form survei → pilih minimal 4 foto → klik <b>Simpan</b><br>
-      2. Tunggu progress upload foto selesai (ada bar hijau)<br>
-      3. Buka tab <b>Data</b> → klik <b>Approve</b> → isi data KTP manual<br>
-      4. Setelah approved → klik <b>Download Kontrak</b> untuk PDF SPPL<br>
-      5. Klik <b>PDF</b> untuk laporan survei lengkap dengan foto
+      1. Isi form survei → upload minimal 4 foto → klik <b>Simpan</b><br>
+      2. Tunggu progress upload foto selesai (ada progress bar)<br>
+      3. Buka tab <b>Data</b> untuk lihat semua data<br>
+      4. Klik <b>Approve</b> → isi data KTP manual → klik <b>Simpan & Approve</b><br>
+      5. Klik <b>Download Kontrak</b> untuk cetak PDF SPPL + foto lokasi
     </div>
   </div>
 </div>
@@ -280,7 +291,7 @@ textarea{resize:vertical;min-height:72px}
       <button onclick="tutupApprove()" style="background:#fff2;border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
     </div>
     <div class="apr-body">
-      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Data Identitas Pemilik Lahan</div>
+      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Data Identitas Pemilik Lahan</div>
       <div class="field"><label>Nama Lengkap *</label><input type="text" id="a-nama" placeholder="Sesuai KTP"></div>
       <div class="row2">
         <div class="field"><label>Tempat Lahir</label><input type="text" id="a-tmplahir" placeholder="Kota lahir"></div>
@@ -295,7 +306,11 @@ textarea{resize:vertical;min-height:72px}
       <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">Data Sertipikat Lahan</div>
       <div class="row2">
         <div class="field"><label>Jenis Hak</label>
-          <select id="a-jenishak"><option value="">-- Pilih --</option><option>Hak Milik (SHM)</option><option>HGB</option><option>Hak Pakai</option><option>Letter C / Girik</option><option>Lainnya</option></select>
+          <select id="a-jenishak">
+            <option value="">-- Pilih --</option>
+            <option>Hak Milik (SHM)</option><option>HGB</option>
+            <option>Hak Pakai</option><option>Letter C / Girik</option><option>Lainnya</option>
+          </select>
         </div>
         <div class="field"><label>No. Sertipikat</label><input type="text" id="a-nosertif" placeholder="SHM No. 12345"></div>
       </div>
@@ -330,18 +345,13 @@ textarea{resize:vertical;min-height:72px}
 <div class="toast" id="toast" style="opacity:0"></div>
 
 <script>
-const LOGO_URL = 'https://raw.githubusercontent.com/sekolakonangindonesia-prog/survei-cas/refs/heads/main/logo%20surve.jpg';
-// Proxy untuk bypass CORS saat load gambar di PDF
-function proxyUrl(url){
-  if(!url) return '';
-  // Hapus https:// untuk weserv
-  const clean = url.replace(/^https?:\/\//,'');
-  return 'https://wsrv.nl/?url='+encodeURIComponent(url)+'&output=jpg&q=80';
-}
-
-let allData=[], fotoBlobs=[], fotoUrls=[], activeDocId=null, waActiveId=null;
+// ── STATE ──
+let allData=[], fotoUrls=[], activeDocId=null, waActiveId=null;
 let db, storage, fb;
 
+const LOGO_URL='https://raw.githubusercontent.com/sekolakonangindonesia-prog/survei-cas/refs/heads/main/logo%20surve.jpg';
+
+// ── FIREBASE ──
 function waitFB(){
   return new Promise(r=>{
     if(window._firebaseReady){assign();r();return;}
@@ -352,8 +362,7 @@ function waitFB(){
 function assign(){
   db=window._db; storage=window._storage; fb=window._fb;
   const st=document.getElementById('setup-status');
-  if(db && st) st.textContent='Firebase terhubung. Data otomatis tersinkronisasi.';
-  else if(st) st.textContent='Gagal terhubung ke Firebase. Periksa koneksi internet.';
+  if(st) st.textContent=db?'Firebase terhubung. Data otomatis tersinkronisasi.':'Gagal terhubung. Periksa koneksi internet.';
 }
 
 async function init(){
@@ -364,6 +373,7 @@ async function init(){
   await loadData();
 }
 
+// ── LOAD ──
 async function loadData(){
   if(!db){toast('Firebase belum siap','err');return;}
   setBar('Mengambil data...','info');
@@ -375,61 +385,25 @@ async function loadData(){
     renderData(); renderStats(); renderExpInfo();
     setBar('','','hide');
     toast('✅ '+allData.length+' data dimuat');
-  }catch(e){
-    setBar('Gagal memuat: '+e.message,'err');
-  }
+  }catch(e){setBar('Gagal memuat: '+e.message,'err');}
 }
 
-// ═══ FOTO PREVIEW & KOMPRES ═══
-let fotoCounter=0;
-async function previewFoto(input){
-  const myRun=++fotoCounter;
-  const files=Array.from(input.files).slice(0,8);
-  if(!files.length) return;
-  fotoBlobs=[]; fotoUrls=[];
-  document.getElementById('foto-preview').innerHTML='';
-  document.getElementById('foto-status').textContent='Memproses '+files.length+' foto...';
-
-  for(const f of files){
-    if(myRun!==fotoCounter) return;
-    // Kompres agresif: maks 800px, quality 0.45 → target < 150KB
-    const hasil = await kompresFile(f, 800, 0.45);
-    if(hasil){
-      fotoBlobs.push(hasil.blob);
-      fotoUrls.push(hasil.dataUrl);
-      const img=document.createElement('img');
-      img.src=hasil.dataUrl;
-      document.getElementById('foto-preview').appendChild(img);
-    }
-  }
-  const kb = fotoBlobs.reduce((a,b)=>a+b.size,0)/1024;
-  document.getElementById('foto-status').textContent=
-    fotoBlobs.length+' foto siap (total ~'+Math.round(kb)+'KB)';
-  toast(fotoBlobs.length+' foto siap diupload');
-}
-
-function kompresFile(file, maxDim, q){
+// ── KOMPRES FOTO (agresif, target <150KB) ──
+function kompresFile(file){
   return new Promise(r=>{
     const fr=new FileReader();
     fr.onload=e=>{
       const img=new Image();
       img.onload=()=>{
+        // Target max 800px, quality 0.45 → sekitar 80-150KB
         let w=img.naturalWidth, h=img.naturalHeight;
-        if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}
-        else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
-        try{
-          const c=document.createElement('canvas');
-          c.width=w; c.height=h;
-          c.getContext('2d').drawImage(img,0,0,w,h);
-          const dataUrl=c.toDataURL('image/jpeg',q);
-          // Convert dataUrl ke Blob
-          const arr=dataUrl.split(','), mime='image/jpeg';
-          const bstr=atob(arr[1]);
-          const u8=new Uint8Array(bstr.length);
-          for(let i=0;i<bstr.length;i++) u8[i]=bstr.charCodeAt(i);
-          const blob=new Blob([u8],{type:mime});
-          r({blob, dataUrl});
-        }catch(e){r(null);}
+        const MAX=800;
+        if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+        else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+        const c=document.createElement('canvas');
+        c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        r(c.toDataURL('image/jpeg',0.45));
       };
       img.onerror=()=>r(null);
       img.src=e.target.result;
@@ -439,17 +413,55 @@ function kompresFile(file, maxDim, q){
   });
 }
 
-// ═══ SIMPAN dengan upload paralel ═══
+// ── PREVIEW FOTO ──
+let fotoCounter=0;
+async function previewFoto(input){
+  const myRun=++fotoCounter;
+  const files=Array.from(input.files).slice(0,8);
+  if(!files.length) return;
+  fotoUrls=[];
+  document.getElementById('foto-preview').innerHTML='';
+  document.getElementById('foto-count').textContent='Memproses '+files.length+' foto...';
+  for(const f of files){
+    if(myRun!==fotoCounter) return;
+    const hasil=await kompresFile(f);
+    if(hasil){
+      fotoUrls.push(hasil);
+      const img=document.createElement('img');
+      img.src=hasil;
+      document.getElementById('foto-preview').appendChild(img);
+    }
+  }
+  // Estimasi ukuran
+  const totalKB=Math.round(fotoUrls.reduce((a,b)=>a+b.length*0.75/1024,0));
+  document.getElementById('foto-count').textContent=
+    fotoUrls.length+' foto siap · estimasi ~'+totalKB+'KB total';
+}
+
+// Fungsi set progress bar
+function setProgress(current, total, msg){
+  const el=document.getElementById('upload-progress');
+  const fill=document.getElementById('upload-progress-fill');
+  const txt=document.getElementById('upload-progress-text');
+  if(total===0){el.style.display='none';return;}
+  el.style.display='block';
+  fill.style.width=Math.round((current/total)*100)+'%';
+  txt.textContent=msg||`Mengupload foto ${current}/${total}...`;
+}
+
+// ── SIMPAN ──
 async function simpan(){
   if(!db){toast('Firebase belum siap','err');return;}
   const nama=g('nama'), tgl=g('tgl'), petugas=g('petugas');
   if(!nama){toast('Nama pemilik wajib diisi','err');return;}
   if(!tgl){toast('Tanggal wajib diisi','err');return;}
   if(!petugas){toast('Nama marketing wajib diisi','err');return;}
-  if(fotoBlobs.length<4){toast('Minimal 4 foto harus dipilih','err');return;}
+  if(fotoUrls.length<1){
+    if(!confirm('Belum ada foto. Lanjut simpan tanpa foto?')) return;
+  }
 
   const btn=document.getElementById('btn-simpan');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Menyimpan...';
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Menyimpan data...';
 
   const entry={
     id:Date.now(), nama, tgl, jam:g('jam'), toko:g('toko'),
@@ -459,7 +471,7 @@ async function simpan(){
     fotos:[], approved:false,
     a_nama:'',a_nik:'',a_tmplahir:'',a_tgllahir:'',a_alamat:'',a_agama:'',a_pekerjaan:'',
     a_jenishak:'',a_nosertif:'',a_luas:'',a_atasnama:'',a_loktanah:'',a_nomorsurat:'',
-    a_approvedBy:'',a_approvedAt:''
+    a_ktpUrl:'',a_approvedBy:'',a_approvedAt:''
   };
 
   try{
@@ -468,65 +480,56 @@ async function simpan(){
     const {collection,addDoc,serverTimestamp,doc,updateDoc}=fb;
     const docRef=await addDoc(collection(db,'survei_lokasi'),{...entry,createdAt:serverTimestamp()});
     const docId=docRef.id;
+    entry._docId=docId;
 
-    // 2. Upload foto paralel dengan progress bar
-    if(fotoBlobs.length){
-      showProgress(0, fotoBlobs.length);
+    // 2. Upload foto PARALEL semua sekaligus
+    if(fotoUrls.length){
+      btn.innerHTML='<span class="spin"></span> Mengupload '+fotoUrls.length+' foto...';
+      setBar('Mengupload '+fotoUrls.length+' foto sekaligus...','info');
+      setProgress(0, fotoUrls.length, 'Mempersiapkan upload...');
+
+      const {ref,uploadString,getDownloadURL}=fb;
       let done=0;
 
-      // Upload semua paralel sekaligus
-      const uploadPromises=fotoBlobs.map(async(blob,i)=>{
-        const {ref,uploadBytes,getDownloadURL}=fb;
+      // Upload semua foto paralel
+      const uploadPromises=fotoUrls.map(async(fotoB64, i)=>{
         const r=ref(storage,`survei/${docId}/foto_${i}_${Date.now()}.jpg`);
-        await uploadBytes(r, blob);
+        await uploadString(r, fotoB64, 'data_url');
         const url=await getDownloadURL(r);
         done++;
-        updateProgress(done, fotoBlobs.length);
+        setProgress(done, fotoUrls.length, `Foto ${done}/${fotoUrls.length} selesai...`);
         return url;
       });
 
       const urls=await Promise.all(uploadPromises);
+      setProgress(fotoUrls.length, fotoUrls.length, 'Semua foto terupload! ✅');
+
+      // Update Firestore dengan URL foto
       await updateDoc(doc(db,'survei_lokasi',docId),{fotos:urls});
       entry.fotos=urls;
-      hideProgress();
+
+      setTimeout(()=>setProgress(0,0),2000);
     }
 
-    entry._docId=docId;
     allData.unshift(entry);
     renderData(); renderStats(); renderExpInfo();
-    setBar('✅ Tersimpan lengkap dengan foto!','ok');
+    setBar('✅ Data & foto tersimpan!','ok');
     setTimeout(()=>setBar('','','hide'),3000);
-    toast('🎉 Data + '+fotoBlobs.length+' foto tersimpan!');
+    toast('Data berhasil disimpan! 🎉');
     resetForm();
 
   }catch(err){
-    hideProgress();
-    setBar('Gagal simpan: '+err.message,'err');
-    toast('Gagal: '+err.message,'err');
+    setBar('Gagal: '+err.message,'err');
+    toast('Gagal simpan: '+err.message,'err');
     console.error(err);
+    setProgress(0,0);
   }finally{
     btn.disabled=false;
     btn.innerHTML='<i class="ti ti-device-floppy"></i> Simpan & Kirim ke Firebase';
   }
 }
 
-function showProgress(done, total){
-  const el=document.getElementById('upload-progress');
-  el.style.display='block';
-  updateProgress(done, total);
-}
-function updateProgress(done, total){
-  const pct=Math.round((done/total)*100);
-  document.getElementById('progress-bar').style.width=pct+'%';
-  document.getElementById('progress-label').textContent='Mengupload foto... '+pct+'%';
-  document.getElementById('progress-detail').textContent=done+' dari '+total+' foto selesai';
-}
-function hideProgress(){
-  document.getElementById('upload-progress').style.display='none';
-  document.getElementById('progress-bar').style.width='0%';
-}
-
-// ═══ DELETE ═══
+// ── DELETE ──
 async function hapus(docId){
   if(!confirm('Hapus data ini?')) return;
   try{
@@ -538,11 +541,12 @@ async function hapus(docId){
   }catch(e){toast('Gagal hapus: '+e.message,'err');}
 }
 
-// ═══ APPROVE ═══
+// ── APPROVE ──
 function bukaApprove(docId){
   const d=allData.find(x=>x._docId===docId);
   if(!d){toast('Data tidak ditemukan','err');return;}
   activeDocId=docId;
+
   document.getElementById('a-nama').value=d.a_nama||d.nama||'';
   document.getElementById('a-tmplahir').value=d.a_tmplahir||'';
   document.getElementById('a-tgllahir').value=d.a_tgllahir||'';
@@ -555,11 +559,13 @@ function bukaApprove(docId){
   document.getElementById('a-luas').value=d.a_luas||'';
   document.getElementById('a-atasnama').value=d.a_atasnama||d.nama||'';
   document.getElementById('a-loktanah').value=d.a_loktanah||[d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'';
+
   const now=new Date();
   const idx=allData.findIndex(x=>x._docId===docId);
   const urut=String(idx+1).padStart(3,'0');
   const bln=String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('a-nomorsurat').value=d.a_nomorsurat||`${urut}/SPPL/WAI/${bln}/${now.getFullYear()}`;
+
   document.getElementById('apr-overlay').classList.add('open');
 }
 
@@ -572,8 +578,10 @@ async function doApprove(){
   if(!activeDocId){toast('Tidak ada data aktif','err');return;}
   const nama=document.getElementById('a-nama').value.trim();
   if(!nama){toast('Nama pemilik wajib diisi','err');return;}
+
   const btn=document.getElementById('btn-do-approve');
   btn.disabled=true; btn.innerHTML='<span class="spin"></span> Menyimpan...';
+
   try{
     const now=new Date();
     const approvedAt=now.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
@@ -603,18 +611,54 @@ async function doApprove(){
     toast('✅ Approve berhasil! Kontrak siap didownload.');
     tutupApprove();
   }catch(err){
-    toast('Gagal: '+err.message,'err');
+    toast('Gagal approve: '+err.message,'err');
+    console.error(err);
   }finally{
     btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Simpan & Approve';
   }
 }
 
-// ═══ DOWNLOAD KONTRAK PDF 1 LEMBAR ═══
+// ── LOAD GAMBAR UNTUK PDF (pakai proxy bypass CORS) ──
+function imgToPdfData(url){
+  return new Promise(resolve=>{
+    // Coba langsung dulu, kalau gagal pakai proxy
+    const tryLoad=(src, fallback)=>{
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=()=>{
+        try{
+          const c=document.createElement('canvas');
+          c.width=img.naturalWidth||400; c.height=img.naturalHeight||400;
+          c.getContext('2d').drawImage(img,0,0);
+          resolve(c.toDataURL('image/jpeg',0.75));
+        }catch(e){
+          if(fallback) fallback();
+          else resolve(null);
+        }
+      };
+      img.onerror=()=>{
+        if(fallback) fallback();
+        else resolve(null);
+      };
+      img.src=src;
+    };
+
+    // Coba langsung, kalau gagal pakai weserv proxy
+    tryLoad(url+'?t='+Date.now(), ()=>{
+      const proxyUrl='https://images.weserv.nl/?url='+encodeURIComponent(url.replace('https://',''))+'&w=600&q=70';
+      tryLoad(proxyUrl, ()=>resolve(null));
+    });
+  });
+}
+
+// ── DOWNLOAD KONTRAK PDF 1 LEMBAR ──
 async function downloadKontrak(docId){
   const d=allData.find(x=>x._docId===docId);
   if(!d){toast('Data tidak ditemukan','err');return;}
   if(!d.approved){toast('Data belum di-approve','err');return;}
+
   toast('Membuat PDF kontrak...');
+
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
@@ -622,32 +666,38 @@ async function downloadKontrak(docId){
   const ml=20, mr=20, tw=pw-ml-mr;
   let y=10;
 
-  // Logo
+  // LOGO
   try{
-    const logoData=await loadImgBase64(LOGO_URL);
-    const logoW=38, logoH=22;
-    doc.addImage(logoData,'JPEG',(pw-logoW)/2,y,logoW,logoH);
-    y+=logoH+3;
-  }catch(e){
-    doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);
-    doc.text('WIRA ARTHA INVESTAMA',pw/2,y+8,{align:'center'});y+=14;
-  }
+    const logoData=await imgToPdfData(LOGO_URL);
+    if(logoData){
+      const logoW=38, logoH=22;
+      doc.addImage(logoData,'JPEG',(pw-logoW)/2,y,logoW,logoH);
+      y+=logoH+3;
+    }
+  }catch(e){}
 
-  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);
-  doc.text('WIRA ARTHA INVESTAMA',pw/2,y,{align:'center'});y+=4;
-  doc.setDrawColor(20,20,20);doc.setLineWidth(0.7);doc.line(ml,y,pw-mr,y);
-  doc.setLineWidth(0.25);doc.line(ml,y+1.2,pw-mr,y+1.2);y+=6;
+  // Nama perusahaan
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+  doc.text('WIRA ARTHA INVESTAMA',pw/2,y,{align:'center'}); y+=5;
 
-  doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);
-  doc.text('SURAT PERSETUJUAN PEMILIK LAHAN',pw/2,y,{align:'center'});y+=5;
-  doc.setFontSize(9);doc.setFont('helvetica','italic');doc.setTextColor(60,60,60);
-  doc.text('Nomor: '+(d.a_nomorsurat||'___/SPPL/___/___/2026'),pw/2,y,{align:'center'});y+=6;
+  // Garis double
+  doc.setDrawColor(30,30,30); doc.setLineWidth(0.8);
+  doc.line(ml,y,pw-mr,y); doc.setLineWidth(0.3);
+  doc.line(ml,y+1.2,pw-mr,y+1.2); y+=6;
 
-  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(20,20,20);
-  doc.text('Yang bertanda tangan di bawah ini (selanjutnya disebut sebagai "Pemilik Lahan"), menerangkan sebagai berikut:',ml,y,{maxWidth:tw});
-  y+=6;
+  // Judul
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
+  doc.text('SURAT PERSETUJUAN PEMILIK LAHAN',pw/2,y,{align:'center'}); y+=5;
+  doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(60,60,60);
+  doc.text('Nomor: '+(d.a_nomorsurat||'___/SPPL/___/___/2026'),pw/2,y,{align:'center'}); y+=6;
 
-  // Tabel
+  // Intro
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(20,20,20);
+  const introTxt='Yang bertanda tangan di bawah ini (selanjutnya disebut sebagai "Pemilik Lahan"), menerangkan sebagai berikut:';
+  const introLines=doc.splitTextToSize(introTxt,tw);
+  doc.text(introLines,ml,y); y+=introLines.length*4.5+4;
+
+  // TABEL
   const rows=[
     ['Nama',d.a_nama||''],
     ['Tempat, Tanggal Lahir',[d.a_tmplahir,d.a_tgllahir].filter(Boolean).join(', ')||''],
@@ -660,27 +710,28 @@ async function downloadKontrak(docId){
   ];
   const c1=58, c2=tw-c1;
   doc.setFontSize(8.5);
+
   // Header tabel
   doc.setFillColor(220,220,220);
-  doc.rect(ml,y,c1,6,'F');doc.rect(ml+c1,y,c2,6,'F');
-  doc.setDrawColor(130,130,130);doc.setLineWidth(0.3);
-  doc.rect(ml,y,tw,6,'S');doc.rect(ml,y,c1,6,'S');
-  doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);
-  doc.text('Uraian',ml+2,y+4);doc.text('Keterangan',ml+c1+2,y+4);
-  y+=6;
+  doc.rect(ml,y,c1,6,'F'); doc.rect(ml+c1,y,c2,6,'F');
+  doc.setDrawColor(120,120,120); doc.setLineWidth(0.3);
+  doc.rect(ml,y,tw,6,'S'); doc.rect(ml,y,c1,6,'S');
+  doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
+  doc.text('Uraian',ml+2,y+4); doc.text('Keterangan',ml+c1+2,y+4); y+=6;
+
   rows.forEach(r=>{
-    const vl=doc.splitTextToSize(r[1]||'',c2-4);
-    const rh=Math.max(7,vl.length*4.5+2.5);
-    doc.setDrawColor(150,150,150);doc.setLineWidth(0.25);
-    doc.rect(ml,y,tw,rh,'S');doc.rect(ml,y,c1,rh,'S');
-    doc.setFont('helvetica','bold');doc.setTextColor(20,20,20);
+    const valLines=doc.splitTextToSize(r[1]||'',c2-4);
+    const rh=Math.max(6.5,valLines.length*4.5+2);
+    doc.setDrawColor(150,150,150); doc.setLineWidth(0.25);
+    doc.rect(ml,y,tw,rh,'S'); doc.rect(ml,y,c1,rh,'S');
+    doc.setFont('helvetica','bold'); doc.setTextColor(20,20,20);
     doc.text(doc.splitTextToSize(r[0],c1-3),ml+2,y+4);
-    doc.setFont('helvetica','normal');doc.text(vl,ml+c1+2,y+4);
-    y+=rh;
+    doc.setFont('helvetica','normal');
+    doc.text(valLines,ml+c1+2,y+4); y+=rh;
   });
   y+=4;
 
-  // Butir 1-6 rapat
+  // BUTIR 1-6 (rapat)
   const butir=[
     'Pemilik Lahan adalah pemilik sah atas bidang tanah sebagaimana data pada tabel di atas.',
     'Pemilik Lahan dengan ini memberikan izin dan persetujuan kepada:\nNama Pihak (Individu/PT): PT.WIRA ARTHA INVESTAMA\nAlamat: Jl.Sriwijaya I no.35 Selong Kb. Baru. Jakarta Selatan\n(selanjutnya disebut sebagai "Penyewa").',
@@ -689,128 +740,128 @@ async function downloadKontrak(docId){
     'Pemilik Lahan tidak akan mengajukan keberatan, tuntutan, atau klaim dalam bentuk apa pun terhadap pelaksanaan perjanjian tersebut sepanjang dilaksanakan sesuai dengan peraturan perundang-undangan yang berlaku di Republik Indonesia.',
     'Surat Persetujuan ini dibuat dan ditandatangani secara sadar, tanpa paksaan dari pihak mana pun, untuk digunakan sebagaimana mestinya.',
   ];
-  doc.setFontSize(8.8);doc.setTextColor(20,20,20);
+
+  doc.setFontSize(9); doc.setTextColor(20,20,20);
   butir.forEach((b,i)=>{
     doc.setFont('helvetica','normal');
     const lines=doc.splitTextToSize(b,tw-7);
     doc.text(String(i+1)+'.',ml,y);
-    doc.text(lines,ml+6,y);
+    doc.text(lines,ml+7,y);
     y+=lines.length*4.2+0.5;
   });
 
-  // Tanda tangan
+  // TANDA TANGAN
   y+=5;
   const tgl=new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(20,20,20);
-  doc.text('Jakarta, '+tgl,pw-mr,y,{align:'right'});y+=6;
-  const sigW=62, cL=ml+4, cR=pw-mr-sigW-4;
-  doc.text('Pemilik Lahan',cL+sigW/2,y,{align:'center'});
-  doc.text('Penyewa (Individu/PT)',cR+sigW/2,y,{align:'center'});
-  y+=22;
-  doc.setDrawColor(60,60,60);doc.setLineWidth(0.4);
-  doc.line(cL,y,cL+sigW,y);doc.line(cR,y,cR+sigW,y);y+=4;
-  doc.setFontSize(8.5);
-  doc.text('('+(d.a_nama||'_____________________')+')',cL+sigW/2,y,{align:'center'});
-  doc.text('(______________________________)',cR+sigW/2,y,{align:'center'});y+=4;
-  doc.setFont('helvetica','bold');doc.text('SUGIMAN',cR+sigW/2,y,{align:'center'});y+=4;
-  doc.setFont('helvetica','normal');doc.text('Direktur Utama',cR+sigW/2,y,{align:'center'});
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(20,20,20);
+  doc.text('Jakarta, '+tgl,pw-mr,y,{align:'right'}); y+=6;
 
-  // Footer merah
-  doc.setDrawColor(123,13,30);doc.setLineWidth(0.5);doc.line(ml,ph-12,pw-mr,ph-12);
-  doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);
+  const sigW=62, cL=ml+5, cR=pw-mr-sigW-5;
+  doc.text('Pemilik Lahan',cL+sigW/2,y,{align:'center'});
+  doc.text('Penyewa (Individu/PT)',cR+sigW/2,y,{align:'center'}); y+=20;
+
+  doc.setDrawColor(60,60,60); doc.setLineWidth(0.4);
+  doc.line(cL,y,cL+sigW,y); doc.line(cR,y,cR+sigW,y); y+=4;
+
+  doc.setFontSize(9);
+  doc.text('('+(d.a_nama||'_____________________')+')',cL+sigW/2,y,{align:'center'});
+  doc.text('(______________________________)',cR+sigW/2,y,{align:'center'}); y+=4;
+  doc.setFont('helvetica','bold');
+  doc.text('SUGIMAN',cR+sigW/2,y,{align:'center'}); y+=4;
+  doc.setFont('helvetica','normal');
+  doc.text('Direktur Utama',cR+sigW/2,y,{align:'center'});
+
+  // FOOTER MERAH
+  doc.setDrawColor(123,13,30); doc.setLineWidth(0.5);
+  doc.line(ml,ph-12,pw-mr,ph-12);
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(123,13,30);
   doc.text('Equity Tower Lvl 22, Sudirman Central Business District Lot.9. Jakarta Selatan',pw/2,ph-7,{align:'center'});
 
-  doc.save(`SPPL_${(d.a_nama||'Pemilik').replace(/\s+/g,'-')}_${today()}.pdf`);
-  toast('📄 PDF Kontrak diunduh!');
+  doc.save('SPPL_'+(d.a_nama||'Pemilik').replace(/\s+/g,'-')+'_'+today()+'.pdf');
+  toast('📄 Kontrak PDF diunduh!');
 }
 
-// ═══ PDF SURVEI + FOTO (pakai proxy CORS) ═══
+// ── PDF SURVEI (dengan foto via proxy) ──
 async function downloadPDFSurvei(docId){
   const d=allData.find(x=>x._docId===docId);
   if(!d){toast('Data tidak ditemukan','err');return;}
   toast('Membuat PDF survei...');
+
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
-  const margin=14; const tw=pw-margin*2; let y=14;
+  const margin=14, tw=pw-margin*2; let y=14;
 
-  doc.setFillColor(123,13,30);doc.rect(0,0,pw,20,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
-  doc.text('Survei 1000 Lokasi Strategis BSS & SPKL',margin,12);
-  doc.setFontSize(8);doc.setFont('helvetica','normal');
-  doc.text('PT. Gajah Nusantara Delapan – Probolinggo Raya',margin,18);
+  doc.setFillColor(123,13,30); doc.rect(0,0,pw,20,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('Survei 1000 Lokasi Strategis BSS & SPKL – Probolinggo Raya',margin,12);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('PT. Gajah Nusantara Delapan',margin,18);
   y=26;
-  doc.setTextColor(30,30,30);doc.setFontSize(13);doc.setFont('helvetica','bold');
-  doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y);y+=8;
 
-  function seksi(t){y+=2;doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(123,13,30);doc.text(t,margin,y);doc.setDrawColor(123,13,30);doc.line(margin,y+1,margin+tw,y+1);doc.setTextColor(30,30,30);y+=6;}
-  function baris(l,v){if(!v)return;doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(107,114,128);doc.text(l,margin,y);doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);const ls=doc.splitTextToSize(v,tw-38);doc.text(ls,margin+38,y);y+=ls.length*5+1;if(y>270){doc.addPage();y=14;}}
+  doc.setTextColor(30,30,30); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text(d.nama+(d.toko?' – '+d.toko:''),margin,y); y+=8;
+
+  function seksi(t){
+    y+=2; doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(123,13,30);
+    doc.text(t,margin,y); doc.setDrawColor(123,13,30); doc.line(margin,y+1,margin+tw,y+1);
+    doc.setTextColor(30,30,30); y+=6;
+  }
+  function row(l,v){
+    if(!v) return;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(107,114,128);
+    doc.text(l,margin,y); doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+    const ls=doc.splitTextToSize(v,tw-38);
+    doc.text(ls,margin+38,y); y+=ls.length*5+1;
+    if(y>270){doc.addPage();y=14;}
+  }
 
   seksi('LOKASI');
-  baris('Jalan/RT/RW:',d.jalan);baris('Kelurahan:',d.kel);baris('Kecamatan:',d.kec);baris('Kabupaten:',d.kab);baris('Maps:',d.gmaps);
+  row('Jalan/RT/RW:',d.jalan); row('Kelurahan:',d.kel); row('Kecamatan:',d.kec);
+  row('Kabupaten:',d.kab); row('Maps:',d.gmaps);
   seksi('KONDISI');
-  baris('Status Lahan:',d.status);baris('Rekomendasi:',d.rekomendasi);baris('Catatan:',d.catatan);
+  row('Status Lahan:',d.status); row('Rekomendasi:',d.rekomendasi); row('Catatan:',d.catatan);
   seksi('TIM');
-  baris('Marketing:',d.petugas);baris('Koordinator:',d.koordinator);baris('Nomer CP:',d.nocp);baris('Tanggal:',d.tgl+' '+(d.jam||''));
+  row('Marketing:',d.petugas); row('Koordinator:',d.koordinator);
+  row('Nomer CP:',d.nocp); row('Tanggal:',d.tgl+' '+d.jam);
 
-  // FOTO dengan proxy CORS
+  // FOTO di PDF (via proxy CORS)
   if(d.fotos&&d.fotos.length){
-    seksi('FOTO LOKASI');
-    const fs=46, gap=4, maxR=Math.floor(tw/(fs+gap));
-    let fx=margin, fy=y;
+    seksi('FOTO LOKASI ('+d.fotos.length+' foto)');
+    toast('Memuat '+d.fotos.length+' foto untuk PDF...');
+    const fs=46, gap=4, maxPerRow=Math.floor(tw/(fs+gap));
+    let fx=margin, fy=y, col=0;
+
     for(let i=0;i<d.fotos.length;i++){
-      if(fy+fs+14>282){doc.addPage();fy=14;fx=margin;}
-      try{
-        // Coba load via proxy dulu, fallback ke URL langsung
-        let imgData=null;
-        try{ imgData=await loadImgBase64(proxyUrl(d.fotos[i])); }
-        catch(e2){ imgData=await loadImgBase64(d.fotos[i]); }
-        if(imgData){
-          doc.addImage(imgData,'JPEG',fx,fy,fs,fs);
-          doc.setFontSize(7);doc.setTextColor(107,114,128);
-          doc.text('Foto '+(i+1),fx+fs/2,fy+fs+4,{align:'center'});
-        }
-      }catch(e){
-        // Gambar gagal load, skip
-        doc.setFillColor(240,240,240);doc.rect(fx,fy,fs,fs,'F');
-        doc.setFontSize(7);doc.setTextColor(150,150,150);
+      if(fy+fs+14>285){doc.addPage();fy=14;fx=margin;col=0;}
+      const imgData=await imgToPdfData(d.fotos[i]);
+      if(imgData){
+        doc.addImage(imgData,'JPEG',fx,fy,fs,fs);
+        doc.setFontSize(7); doc.setTextColor(107,114,128);
+        doc.text('Foto '+(i+1),fx+fs/2,fy+fs+3.5,{align:'center'});
+      } else {
+        // Placeholder kalau foto gagal load
+        doc.setFillColor(240,240,240);
+        doc.rect(fx,fy,fs,fs,'F');
+        doc.setFontSize(7); doc.setTextColor(150,150,150);
         doc.text('Foto '+(i+1),fx+fs/2,fy+fs/2,{align:'center'});
       }
+      col++;
       fx+=fs+gap;
-      if((i+1)%maxR===0){fx=margin;fy+=fs+12;}
+      if(col>=maxPerRow){fx=margin;fy+=fs+12;col=0;}
     }
   }
 
   const pc=doc.internal.getNumberOfPages();
   for(let p=1;p<=pc;p++){
-    doc.setPage(p);doc.setFontSize(7);doc.setTextColor(150,150,150);
-    doc.text(`PT. Gajah Nusantara Delapan · ${today()} · Hal ${p}/${pc}`,pw/2,292,{align:'center'});
+    doc.setPage(p); doc.setFontSize(7); doc.setTextColor(150,150,150);
+    doc.text('PT. Gajah Nusantara Delapan · '+today()+' · Hal '+p+'/'+pc,pw/2,292,{align:'center'});
   }
-  doc.save(`survei-${(d.nama||'data').replace(/\s+/g,'-')}-${today()}.pdf`);
+  doc.save('survei-'+(d.nama||'data').replace(/\s+/g,'-')+'-'+today()+'.pdf');
   toast('PDF survei diunduh!');
 }
 
-// Load gambar sebagai base64 (dengan timeout 8 detik)
-function loadImgBase64(url){
-  return new Promise((resolve,reject)=>{
-    const timeout=setTimeout(()=>reject(new Error('Timeout')),8000);
-    const img=new Image();
-    img.crossOrigin='anonymous';
-    img.onload=()=>{
-      clearTimeout(timeout);
-      try{
-        const c=document.createElement('canvas');
-        c.width=img.naturalWidth||400; c.height=img.naturalHeight||400;
-        c.getContext('2d').drawImage(img,0,0);
-        resolve(c.toDataURL('image/jpeg',0.82));
-      }catch(e){reject(e);}
-    };
-    img.onerror=()=>{clearTimeout(timeout);reject(new Error('Load failed'));};
-    img.src=url;
-  });
-}
-
-// ═══ RENDER ═══
+// ── RENDER DATA ──
 function renderData(){
   const q=(document.getElementById('search-q')||{value:''}).value.toLowerCase();
   const fr=(document.getElementById('filter-rek')||{value:''}).value;
@@ -820,7 +871,7 @@ function renderData(){
   });
   const area=document.getElementById('data-list');
   if(!list.length){
-    area.innerHTML=`<div class="empty"><i class="ti ti-map-off"></i><p>${allData.length?'Tidak ada yang cocok':'Belum ada data'}</p></div>`;
+    area.innerHTML='<div class="empty"><i class="ti ti-map-off"></i><p>'+(allData.length?'Tidak ada yang cocok':'Belum ada data')+'</p></div>';
     return;
   }
   area.innerHTML=list.map(d=>`
@@ -833,20 +884,21 @@ function renderData(){
         </div>
       </div>
       <div class="card-addr"><i class="ti ti-map-pin" style="margin-top:1px;flex-shrink:0"></i>${esc([d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', '))}</div>
-      ${d.status?`<div style="margin-bottom:6px"><span class="tag tag-gray"><i class="ti ti-home"></i> ${esc(d.status)}</span></div>`:''}
-      ${d.gmaps?`<a href="${esc(d.gmaps)}" target="_blank" style="font-size:12px;color:var(--primary);display:inline-flex;align-items:center;gap:4px;margin-bottom:6px"><i class="ti ti-external-link"></i>Google Maps</a>`:''}
-      ${d.catatan?`<div class="card-catatan">${esc(d.catatan)}</div>`:''}
-      ${d.fotos&&d.fotos.length?`<div class="card-fotos">${d.fotos.map(f=>`<img src="${f}" onclick="openFoto(this.src)" loading="lazy" onerror="this.style.display='none'">`).join('')}</div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">${d.fotos.length} foto tersimpan</div>`:''}
-      ${d.approved&&d.a_approvedBy?`<div style="font-size:11px;color:var(--success);margin-top:4px"><i class="ti ti-check"></i> Disetujui oleh ${esc(d.a_approvedBy)} – ${esc(d.a_approvedAt)}</div>`:''}
+      ${d.status?'<div class="card-meta"><span class="tag tag-gray"><i class="ti ti-home"></i> '+esc(d.status)+'</span></div>':''}
+      ${d.gmaps?'<a href="'+esc(d.gmaps)+'" target="_blank" style="font-size:12px;color:var(--primary);display:inline-flex;align-items:center;gap:4px;margin-bottom:6px"><i class="ti ti-external-link"></i>Google Maps</a>':''}
+      ${d.catatan?'<div class="card-catatan">'+esc(d.catatan)+'</div>':''}
+      ${d.fotos&&d.fotos.length?'<div class="card-fotos">'+d.fotos.map((f,i)=>'<img src="'+f+'" onclick="openFoto(this.src)" loading="lazy" onerror="this.src=\'https://images.weserv.nl/?url='+encodeURIComponent(f.replace('https://',''))+'&w=300\'">').join('')+'</div>':'<div style="font-size:12px;color:var(--muted);margin:4px 0"><i class="ti ti-photo-off"></i> Belum ada foto</div>'}
+      ${d.fotos&&d.fotos.length?'<div style="font-size:11px;color:var(--muted)">'+d.fotos.length+' foto tersimpan</div>':''}
+      ${d.approved&&d.a_approvedBy?'<div style="font-size:11px;color:var(--success);margin-top:4px"><i class="ti ti-check"></i> Disetujui oleh '+esc(d.a_approvedBy)+' – '+esc(d.a_approvedAt)+'</div>':''}
       <div style="font-size:12px;color:var(--muted);margin-top:6px">
-        ${d.koordinator?`Koordinator: <b>${esc(d.koordinator)}</b> · `:''}${d.nocp?esc(d.nocp)+' · ':''}${d.email?esc(d.email):''}
+        ${d.koordinator?'Koordinator: <b>'+esc(d.koordinator)+'</b> · ':''}${d.nocp?esc(d.nocp)+' · ':''}${d.email?esc(d.email):''}
       </div>
       <div class="card-actions">
         <button class="btn btn-sm btn-wa" onclick="kirimWA('${d._docId}')"><i class="ti ti-brand-whatsapp"></i> WA</button>
         <button class="btn btn-sm btn-pdf" onclick="downloadPDFSurvei('${d._docId}')"><i class="ti ti-file-type-pdf"></i> PDF</button>
         ${d.approved
-          ?`<button class="btn btn-sm btn-contract" onclick="downloadKontrak('${d._docId}')"><i class="ti ti-file-invoice"></i> Download Kontrak</button>`
-          :`<button class="btn btn-sm btn-approve" onclick="bukaApprove('${d._docId}')"><i class="ti ti-clipboard-check"></i> Approve</button>`
+          ?'<button class="btn btn-sm btn-contract" onclick="downloadKontrak(\''+d._docId+'\')"><i class="ti ti-file-invoice"></i> Download Kontrak</button>'
+          :'<button class="btn btn-sm btn-approve" onclick="bukaApprove(\''+d._docId+'\')"><i class="ti ti-clipboard-check"></i> Approve</button>'
         }
         <button class="btn btn-sm btn-danger" onclick="hapus('${d._docId}')"><i class="ti ti-trash"></i></button>
         <div class="card-footer">${d.tgl} ${d.jam||''} · ${esc(d.petugas||'')}</div>
@@ -856,69 +908,69 @@ function renderData(){
 }
 
 function renderStats(){
-  const el=document.getElementById('stats');if(!el)return;
+  const el=document.getElementById('stats'); if(!el) return;
   const total=allData.length;
   const bss=allData.filter(d=>d.rekomendasi&&d.rekomendasi.includes('BSS')).length;
   const spkl=allData.filter(d=>d.rekomendasi&&d.rekomendasi.includes('SPKL')).length;
-  el.innerHTML=`
-    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Total</div></div>
-    <div class="stat"><div class="stat-num">${bss}</div><div class="stat-lbl">BSS</div></div>
-    <div class="stat"><div class="stat-num">${spkl}</div><div class="stat-lbl">SPKL</div></div>`;
+  el.innerHTML='<div class="stat"><div class="stat-num">'+total+'</div><div class="stat-lbl">Total</div></div>'
+    +'<div class="stat"><div class="stat-num">'+bss+'</div><div class="stat-lbl">BSS</div></div>'
+    +'<div class="stat"><div class="stat-num">'+spkl+'</div><div class="stat-lbl">SPKL</div></div>';
 }
-function renderExpInfo(){const el=document.getElementById('exp-info');if(el)el.textContent=allData.length+' data tersimpan di Firebase';}
+function renderExpInfo(){
+  const el=document.getElementById('exp-info');
+  if(el) el.textContent=allData.length+' data tersimpan di Firebase';
+}
 function rekTag(r){
   if(!r) return '';
-  if(r.includes('BSS')&&r.includes('SPKL')) return `<span class="tag tag-green">BSS+SPKL</span>`;
-  if(r==='BSS') return `<span class="tag tag-blue">BSS</span>`;
-  if(r==='SPKL') return `<span class="tag tag-purple">SPKL</span>`;
-  return `<span class="tag tag-gray">${r}</span>`;
+  if(r.includes('BSS')&&r.includes('SPKL')) return '<span class="tag tag-green">BSS+SPKL</span>';
+  if(r==='BSS') return '<span class="tag tag-blue">BSS</span>';
+  if(r==='SPKL') return '<span class="tag tag-purple">SPKL</span>';
+  return '<span class="tag tag-gray">'+r+'</span>';
 }
 
-// ═══ WHATSAPP ═══
+// ── WHATSAPP ──
 function kirimWA(docId){
-  const d=allData.find(x=>x._docId===docId);if(!d)return;
+  const d=allData.find(x=>x._docId===docId); if(!d) return;
   waActiveId=docId;
   if(d.fotos&&d.fotos.length){
-    document.getElementById('wa-info').innerHTML=`Ada <b>${d.fotos.length} foto</b>.<br>1️⃣ Klik <b>Simpan Foto</b> dulu → 2️⃣ Klik <b>Buka WhatsApp</b>`;
-    document.getElementById('wa-foto-grid').innerHTML=d.fotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px">`).join('');
+    document.getElementById('wa-info').innerHTML='Ada <b>'+d.fotos.length+' foto</b>.<br>1️⃣ Klik <b>Simpan Foto</b> → 2️⃣ Klik <b>Buka WhatsApp</b>';
+    document.getElementById('wa-foto-grid').innerHTML=d.fotos.map(f=>'<img src="'+f+'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px">').join('');
     document.getElementById('wa-save-btn').textContent='📥 Simpan Foto ('+d.fotos.length+')';
     document.getElementById('wa-panel').classList.add('open');
-  }else{ bukaWALangsung(d); }
+  } else { bukaWALangsung(d); }
 }
 function simpanFotoWA(){
-  const d=allData.find(x=>x._docId===waActiveId);if(!d||!d.fotos)return;
+  const d=allData.find(x=>x._docId===waActiveId); if(!d||!d.fotos) return;
   const nm=(d.nama||'foto').replace(/[^a-zA-Z0-9]/g,'-');
-  d.fotos.forEach((f,i)=>{
-    setTimeout(()=>{const a=document.createElement('a');a.href=f;a.download=`cas-${nm}-foto${i+1}.jpg`;document.body.appendChild(a);a.click();document.body.removeChild(a);},i*400);
-  });
+  d.fotos.forEach((f,i)=>setTimeout(()=>{const a=document.createElement('a');a.href=f;a.download='cas-'+nm+'-foto'+(i+1)+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);},i*400));
   toast(d.fotos.length+' foto sedang diunduh...');
 }
 function lanjutBukaWA(){
   document.getElementById('wa-panel').classList.remove('open');
-  const d=allData.find(x=>x._docId===waActiveId);if(d)bukaWALangsung(d);
+  const d=allData.find(x=>x._docId===waActiveId); if(d) bukaWALangsung(d);
 }
 function bukaWALangsung(d){
   const teks=['🔌 *SURVEI LOKASI CAS*','━━━━━━━━━━━━━━━━━━━',
-    `👤 *Pemilik:* ${d.nama}${d.toko?' / '+d.toko:''}`,
-    `📍 *Alamat:* ${[d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'}`,
-    d.gmaps?`🗺️ *Maps:* ${d.gmaps}`:'',
-    `🏷️ *Status Lahan:* ${d.status||'-'}`,
-    `✅ *Rekomendasi:* ${d.rekomendasi||'-'}`,
-    d.catatan?`📝 *Catatan:* ${d.catatan}`:'',
+    '👤 *Pemilik:* '+d.nama+(d.toko?' / '+d.toko:''),
+    '📍 *Alamat:* '+([d.jalan,d.kel,d.kec,d.kab,d.prov].filter(Boolean).join(', ')||'-'),
+    d.gmaps?'🗺️ *Maps:* '+d.gmaps:'',
+    '🏷️ *Status Lahan:* '+(d.status||'-'),
+    '✅ *Rekomendasi:* '+(d.rekomendasi||'-'),
+    d.catatan?'📝 *Catatan:* '+d.catatan:'',
     '━━━━━━━━━━━━━━━━━━━',
-    `📌 *Marketing:* ${d.petugas||'-'}`,
-    d.koordinator?`📌 *Koordinator:* ${d.koordinator}`:'',
-    d.nocp?`📞 *CP:* ${d.nocp}`:'',
-    `📅 *Tanggal:* ${d.tgl}${d.jam?' '+d.jam:''}`
+    '📌 *Marketing:* '+(d.petugas||'-'),
+    d.koordinator?'📌 *Koordinator:* '+d.koordinator:'',
+    d.nocp?'📞 *CP:* '+d.nocp:'',
+    '📅 *Tanggal:* '+d.tgl+(d.jam?' '+d.jam:'')
   ].filter(Boolean).join('\n');
   window.location.href='https://wa.me/?text='+encodeURIComponent(teks);
 }
 
-// ═══ EKSPOR ═══
+// ── EKSPOR ──
 function exportCSV(){
   if(!allData.length){toast('Tidak ada data','err');return;}
   const cols=['ID','Tanggal','Jam','Nama','Toko','Jalan','Kelurahan','Kecamatan','Kabupaten','Provinsi','Maps','Status','Rekomendasi','Catatan','Marketing','Koordinator','Approved','Tgl Approve'];
-  const rows=allData.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.gmaps,d.status,d.rekomendasi,d.catatan,d.petugas,d.koordinator,d.approved?'Ya':'Tidak',d.a_approvedAt||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+  const rows=allData.map(d=>[d.id,d.tgl,d.jam,d.nama,d.toko,d.jalan,d.kel,d.kec,d.kab,d.prov,d.gmaps,d.status,d.rekomendasi,d.catatan,d.petugas,d.koordinator,d.approved?'Ya':'Tidak',d.a_approvedAt||''].map(v=>'"'+(v||'').replace(/"/g,'""')+'"'));
   const csv=[cols.join(','),...rows.map(r=>r.join(','))].join('\n');
   dl('\uFEFF'+csv,'survei-'+today()+'.csv','text/csv;charset=utf-8;');
   toast('CSV diunduh!');
@@ -930,11 +982,11 @@ function exportJSON(){
 }
 function copyText(){
   if(!allData.length){toast('Tidak ada data','err');return;}
-  const txt=allData.map((d,i)=>`[${i+1}] ${d.nama}${d.toko?' / '+d.toko:''}\nAlamat: ${[d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'-'}\nRek: ${d.rekomendasi||'-'} | Status: ${d.status||'-'}\nMarketing: ${d.petugas||'-'} | ${d.tgl}\n${'─'.repeat(40)}`).join('\n');
+  const txt=allData.map((d,i)=>'['+( i+1)+'] '+d.nama+(d.toko?' / '+d.toko:'')+'\nAlamat: '+([d.jalan,d.kel,d.kec,d.kab].filter(Boolean).join(', ')||'-')+'\nRek: '+(d.rekomendasi||'-')+' | Status: '+(d.status||'-')+'\nMarketing: '+(d.petugas||'-')+' | '+d.tgl+'\n'+'─'.repeat(40)).join('\n');
   navigator.clipboard.writeText(txt).then(()=>toast('Disalin!'),()=>toast('Gagal salin','err'));
 }
 
-// ═══ HELPERS ═══
+// ── HELPERS ──
 function switchTab(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
@@ -942,15 +994,16 @@ function switchTab(id){
   const idx={form:0,data:1,export:2,setup:3}[id];
   document.querySelectorAll('.tab')[idx].classList.add('active');
   if(id==='data'){renderData();renderStats();}
-  if(id==='export')renderExpInfo();
+  if(id==='export') renderExpInfo();
 }
 function resetForm(){
   ['nama','toko','jalan','kel','kec','kab','prov','gmaps','catatan','petugas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['status','rekomendasi'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('fotos').value='';
   document.getElementById('foto-preview').innerHTML='';
-  document.getElementById('foto-status').textContent='';
-  fotoBlobs=[]; fotoUrls=[];
+  document.getElementById('foto-count').textContent='';
+  setProgress(0,0);
+  fotoUrls=[];
   const now=new Date();
   document.getElementById('tgl').value=now.toISOString().slice(0,10);
   document.getElementById('jam').value=now.toTimeString().slice(0,5);
@@ -963,14 +1016,14 @@ function openFoto(src){document.getElementById('overlay-img').src=src;document.g
 function setBar(msg,type,action){
   const b=document.getElementById('status-bar');
   if(action==='hide'){b.style.display='none';return;}
-  b.textContent=msg;b.className='status-bar '+(type||'info');b.style.display='flex';
+  b.textContent=msg; b.className='status-bar '+(type||'info'); b.style.display='flex';
 }
 let toastT;
 function toast(msg,type){
   const t=document.getElementById('toast');
   t.textContent=msg;
   t.style.background=type==='err'?'#991B1B':type==='warn'?'#92400E':'#1A1A1A';
-  t.style.opacity='1';clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity='0',3500);
+  t.style.opacity='1'; clearTimeout(toastT); toastT=setTimeout(()=>t.style.opacity='0',3500);
 }
 
 init();
